@@ -37,13 +37,25 @@
 </head>
 <body>
 <h1>trade-research — CHANGELOG</h1>
-<p class="meta">main 커밋 4건 · 최종 갱신 2026-06-10 · 기준 계보 main</p>
+<p class="meta">main 커밋 5건 · 최종 갱신 2026-06-10 · 기준 계보 main</p>
 <ul class="log">
+    <li class="entry">
+      <span class="date">2026-06-10</span>
+      <span class="badge feat">feat</span>
+      <span class="subject">feat(001): 미국 주식 반등 스크리너 대시보드</span>
+      <code class="hash pending">pending</code>
+    </li>
     <li class="entry">
       <span class="date">2026-06-10</span>
       <span class="badge docs">docs</span>
       <span class="subject">docs: CHANGELOG.html 연속 생성 제도 도입 (R4.1)</span>
-      <code class="hash pending">pending</code>
+      <code class="hash">9c6a00e</code>
+      <details><summary>상세</summary><pre>main에 쌓이는 모든 커밋이 같은 커밋 안에 changelog.sh로 재생성된
+CHANGELOG.html을 동반한다 — 사람이 git 없이 변경 이력을 본다.
+- .claude/hooks/changelog.sh: 결정론 생성기(git log = 단일 진실, HTML = 파생물)
+- 표준 경로 /ship ① --pending 선반영, 충돌은 재생성으로 자가 치유
+- 개정: 참조 문서(R4.1) · constitution §13 · CLAUDE.md · ship/bolt 커맨드 · README
+- ADR 0002 기록 (보호 경로 개정 = 운영자 명시 지시 = AMEND 등가)</pre></details>
     </li>
     <li class="entry">
       <span class="date">2026-06-10</span>

@@ -7,6 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **mode: team** · 상위 레퍼런스 = `AUTONOMOUS-STACK-REFERENCE.md`(충돌 시 그 문서 우선) · 불변 원칙 = `specs/constitution.md`
 (1인 운용으로 축소할 때만 `mode: solo` — 게이트 차이: G1/G2가 타 팀원 PR Approve 대신 터미널 승인 + required approvals 0)
 
+> **현 운용 상태 `[ASSUMED]`**: 팀원 1인(@dkdlqoddi)·브랜치 보호 미설정 — **솔로 폴백**으로 운용 중(G1/G2 = 운영자 터미널 지시, main 직접 커밋 + changelog 동반은 constitution §13 예외). 산출물(스펙·design·tasks·verification)은 팀 모드와 동일하게 전부 생성한다. 팀원 합류 + 브랜치 보호 설정 시 team 절차로 원복.
+
 ## 스택 / 확정 명령
 
 Next.js(App Router) + TypeScript + vitest + Playwright + npm + Node 22

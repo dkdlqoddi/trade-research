@@ -35,6 +35,8 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      DATA_SOURCE: fixture # 인수 테스트는 픽스처 모드 — 외부 시세 API를 required 게이트에 들이지 않는다(specs/001 [ASSUMED] 4)
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -53,6 +55,8 @@ jobs:
   budgets:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      DATA_SOURCE: fixture # 빌드 프리렌더·예산 측정의 결정론 확보
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -77,9 +81,11 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - name: 변경 소스만 뮤테이션
+        env:
+          BASE_REF: ${{ github.base_ref }} # 셸 직접 보간 금지 — env 경유 (semgrep run-shell-injection)
         run: |
-          git fetch origin "${{ github.base_ref }}"
-          CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}"...HEAD -- 'src/**/*.ts' 'src/**/*.tsx' \
+          git fetch origin "$BASE_REF"
+          CHANGED=$(git diff --name-only "origin/$BASE_REF"...HEAD -- 'src/**/*.ts' 'src/**/*.tsx' \
             | grep -vE '\.(test|spec)\.' | paste -sd, -) || true
           if [ -z "$CHANGED" ]; then
             echo "변경된 구현 소스 없음 — 뮤테이션 스킵"
