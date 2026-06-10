@@ -71,7 +71,15 @@ GitHub의 역할은 셋뿐이다:
 
 **사용 금지(생성도, 사용도)**: Issues / Discussions / Projects / 라벨 / ISSUE_TEMPLATE / `@claude` 원격 트리거(claude.yml). 의도 수집은 `specs/_inbox/`로. 권한도 deny: `gh issue *` · `gh secret *` · `gh repo delete` · `gh api`(통째).
 
-## 13. 설정 거버넌스
+## 13. 연속 CHANGELOG (R4.1)
+
+- **main에 쌓이는 모든 커밋은 같은 커밋 안에 재생성된 `CHANGELOG.html`을 동반한다** — 사람이 git 없이 변경 이력을 본다.
+- 생성기는 `.claude/hooks/changelog.sh`가 유일하다. **단일 진실은 git log, HTML은 파생물** — 손편집 금지(다음 재생성이 덮는다).
+- 표준 경로: `/ship ①`에서 `changelog.sh --pending "<PR제목>"` 실행 → squash 커밋이 자기 엔트리를 품는다. main 직접 커밋이 허용되는 예외 상황(솔로 폴백·부트스트랩·AMEND)도 커밋 직전 동일하게 실행한다.
+- 병합 충돌·엔트리 누락은 고치지 말고 **재생성으로 해소**한다(이력에서 다시 그려지므로 자가 치유).
+- `release.yml`(태그 시점 릴리스 노트)과 상보적 — CHANGELOG.html은 태그 사이를 포함한 연속 뷰다.
+
+## 14. 설정 거버넌스
 
 - 팀 표준 = `.claude/settings.json`(커밋) · 개인 취향 = `.claude/settings.local.json`(자동 gitignore)
 - 개인 설정으로 allow **추가**는 가능하나 **deny 완화·훅 제거·약화는 constitution 위반**이다.

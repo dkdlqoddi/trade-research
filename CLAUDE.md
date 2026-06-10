@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-# 운영 헌법 — 자율 개발 스택 R4
+# 운영 헌법 — 자율 개발 스택 R4.1
 
 **mode: team** · 상위 레퍼런스 = `AUTONOMOUS-STACK-REFERENCE.md`(충돌 시 그 문서 우선) · 불변 원칙 = `specs/constitution.md`
 (1인 운용으로 축소할 때만 `mode: solo` — 게이트 차이: G1/G2가 타 팀원 PR Approve 대신 터미널 승인 + required approvals 0)
@@ -21,6 +21,7 @@ Next.js(App Router) + TypeScript + vitest + Playwright + npm + Node 22
 | E2E_CMD | `npx playwright test --retries=1 --grep-invert @quarantine` |
 | MUTATION_CMD | `npx stryker run --incremental` |
 | SPEC_LINT | `bash .claude/hooks/spec-lint.sh <specs/NNN-slug \| --all>` |
+| CHANGELOG | `bash .claude/hooks/changelog.sh --pending "<제목>"` — main에 쌓일 커밋마다 |
 
 보안 3중(스택 무관 고정): gitleaks · semgrep(`p/ci` + `.semgrep/`) · npm audit
 
@@ -31,6 +32,7 @@ Next.js(App Router) + TypeScript + vitest + Playwright + npm + Node 22
 3. 의도의 입구는 둘뿐: **터미널 대화**, **`specs/_inbox/`**. (GitHub Issues 금지 — constitution §12)
 4. 에스컬레이션 화이트리스트(아래) 외에는 **스스로 결정하고 기록한다** — 볼트 내부 결정은 design.md Decision Log, 볼트를 넘는 결정은 `docs/adr/`.
 5. 스펙과 코드가 모순되면 코드를 우회하지 않는다 — `/spec --revise`뿐.
+6. **연속 CHANGELOG**: main에 쌓이는 모든 커밋(= PR squash + 직접 커밋 예외)은 같은 커밋에 `changelog.sh`로 재생성한 `CHANGELOG.html`을 동반한다 — /ship ①이 표준 경로. HTML은 git log의 파생물: 손편집 금지, 충돌은 재생성으로 해소 (constitution §13).
 
 ## 볼트 페이즈 상태머신 (§2)
 

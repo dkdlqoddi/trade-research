@@ -7,10 +7,13 @@ argument-hint: NNN
 
 NNN = $ARGUMENTS. done-check 통과 상태가 전제. **순서를 바꾸면 안전장치가 무너진다** — dismiss stale 정책 때문에 G2 승인 후 커밋 push는 승인을 휘발시킨다.
 
-## ① 최종 커밋 일괄 push
+## ① CHANGELOG 재생성 + 최종 커밋 일괄 push
 
-verification.md 완성본 포함 전부 커밋 → `git push` (ask).
-**이 시점 이후 이 PR에 커밋 push 금지.** 수정이 필요해지면 push 전으로 되돌아온 것 — G2를 다시 받는다.
+1. `bash .claude/hooks/changelog.sh --pending "<이 PR의 제목>"` — main 이력 + 이 볼트 엔트리로 CHANGELOG.html 재생성 (constitution §13: main에 쌓이는 모든 커밋은 changelog를 동반)
+2. CHANGELOG.html에 이 PR 제목이 들어갔는지 grep으로 확인
+3. verification.md 완성본 + CHANGELOG.html 포함 전부 커밋 → `git push` (ask)
+
+**이 시점 이후 이 PR에 커밋 push 금지.** 수정이 필요해지면 push 전으로 되돌아온 것 — G2를 다시 받는다(CHANGELOG도 그때 재생성).
 
 ## ② PR 본문을 종합 보고로 갱신
 

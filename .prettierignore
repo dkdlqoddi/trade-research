@@ -7,3 +7,4 @@ test-results/
 .stryker-tmp/
 package-lock.json
 next-env.d.ts
+CHANGELOG.html

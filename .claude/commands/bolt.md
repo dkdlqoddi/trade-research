@@ -51,7 +51,7 @@ phase=PLAN 기록. `.claude/state/budget.json`의 `started_at`을 현재 ISO8601
 
 - **RED**: test-designer 위임 → 단위 테스트(R#별, Invariant는 속성 테스트). 인수(S#)+단위 테스트 **실패 확인**이 산출물.
 - **GREEN**: implementer 위임 → 최소 구현. guard가 테스트·acceptance 수정을 물리 차단. 미완 기능은 플래그 뒤로.
-- **REFACTOR**: implementer 위임 → 정리. 이후 `git fetch origin && git merge origin/main`(squash 머지 운용이라 병합 커밋 부담 없음, force-push 불요). 충돌은 spec.md 기준 해석 — 해석 불가면 에스컬레이션 ⑥.
+- **REFACTOR**: implementer 위임 → 정리. 이후 `git fetch origin && git merge origin/main`(squash 머지 운용이라 병합 커밋 부담 없음, force-push 불요). 충돌은 spec.md 기준 해석 — 해석 불가면 에스컬레이션 ⑥. **CHANGELOG.html 충돌은 예외**: 해석 불요 — `bash .claude/hooks/changelog.sh --pending "<PR제목>"` 재실행으로 해소(파생물 재생성, constitution §13).
 - **VERIFY**: spec-verifier 위임(블라인드: 예측 → 실측 → 판정) + e2e-tester 위임(S# 재현·비주얼·axe·증거 첨부). 불일치 = FAIL = GREEN 복귀.
 - **REVIEW**: code-reviewer 위임. BLOCK 발견 시 implementer로 수정 루프(테스트 약화 방향은 금지).
 

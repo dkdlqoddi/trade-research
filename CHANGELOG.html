@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>trade-research — CHANGELOG</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+         max-width: 880px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid #8884; padding-bottom: .5rem; }
+  .meta { color: #888; font-size: .85rem; margin-bottom: 1.5rem; }
+  ul.log { list-style: none; padding: 0; }
+  li.entry { display: flex; flex-wrap: wrap; gap: .6rem; align-items: baseline;
+             padding: .55rem .6rem; border-bottom: 1px solid #8883; }
+  li.entry:nth-child(odd) { background: #8881; }
+  .date { color: #888; font-size: .85rem; font-variant-numeric: tabular-nums; min-width: 6.2rem; }
+  .badge { font-size: .72rem; font-weight: 700; padding: .1rem .45rem; border-radius: .6rem;
+           text-transform: uppercase; letter-spacing: .02em; }
+  .badge.feat { background: #2e7d3222; color: #2e7d32; }
+  .badge.fix { background: #c6282822; color: #c62828; }
+  .badge.spec { background: #1565c022; color: #1565c0; }
+  .badge.plan { background: #6a1b9a22; color: #6a1b9a; }
+  .badge.docs { background: #00838f22; color: #00838f; }
+  .badge.test { background: #ef6c0022; color: #ef6c00; }
+  .badge.refactor { background: #4e342e22; color: #795548; }
+  .badge.handoff { background: #37474f22; color: #546e7a; }
+  .badge.chore, .badge.etc { background: #61616122; color: #757575; }
+  .subject { flex: 1 1 24rem; }
+  code.hash { color: #888; font-size: .8rem; }
+  code.hash.pending { color: #ef6c00; }
+  details { flex-basis: 100%; margin: 0 0 0 6.8rem; }
+  summary { cursor: pointer; color: #888; font-size: .82rem; }
+  pre { white-space: pre-wrap; font-size: .82rem; background: #8881; padding: .6rem; border-radius: .4rem; }
+  footer { margin-top: 2rem; color: #888; font-size: .78rem; border-top: 1px solid #8883; padding-top: .8rem; }
+</style>
+</head>
+<body>
+<h1>trade-research — CHANGELOG</h1>
+<p class="meta">main 커밋 4건 · 최종 갱신 2026-06-10 · 기준 계보 main</p>
+<ul class="log">
+    <li class="entry">
+      <span class="date">2026-06-10</span>
+      <span class="badge docs">docs</span>
+      <span class="subject">docs: CHANGELOG.html 연속 생성 제도 도입 (R4.1)</span>
+      <code class="hash pending">pending</code>
+    </li>
+    <li class="entry">
+      <span class="date">2026-06-10</span>
+      <span class="badge chore">chore</span>
+      <span class="subject">chore: activate team settings (.claude/settings.json)</span>
+      <code class="hash">eb52d9c</code>
+      <details><summary>상세</summary><pre>팀 협업에 필요한 .claude 산출물 중 유일한 누락분이던 팀 표준 설정을
+견본(.example)에서 정식 파일로 전환. 훅 배선·권한·모델 고정이
+모든 팀원의 체크아웃에서 동일하게 로드된다.</pre></details>
+    </li>
+    <li class="entry">
+      <span class="date">2026-06-10</span>
+      <span class="badge chore">chore</span>
+      <span class="subject">chore: bootstrap autonomous stack (R4)</span>
+      <code class="hash">659e978</code>
+      <details><summary>상세</summary><pre>AUTONOMOUS-STACK-REFERENCE.md §1 설치 지시 수행:
+- .claude/ — 에이전트 7, 훅 6(+spec-lint-words), 커맨드 8, settings 견본
+- specs/constitution.md, specs/_inbox/, docs/adr/0001
+- .github/ — gates/nightly/release.yml(SHA 핀), CODEOWNERS
+- Next.js+TS+vitest+Playwright 최소 스캐폴딩 [ASSUMED]
+- CLAUDE.md = 운영 헌법(mode: team)</pre></details>
+    </li>
+    <li class="entry">
+      <span class="date">2026-06-10</span>
+      <span class="badge etc">etc</span>
+      <span class="subject">Initial commit</span>
+      <code class="hash">d4e0312</code>
+    </li>
+</ul>
+<footer>생성기: <code>.claude/hooks/changelog.sh</code> — 이 파일은 git log의 파생물이다. 손편집 금지(다음 재생성이 덮는다). 병합 충돌·엔트리 누락은 재생성으로 해소.</footer>
+</body>
+</html>
