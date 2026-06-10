@@ -38,6 +38,16 @@ type TickerStats = UniverseEntry & {
 - RSI(14): Wilder smoothing, avgLoss=0 → 100, avgGain=0 → 0
 - 정렬: inDecline 구간 reboundRate desc(null 마지막), 동률은 표본수 desc
 
+## rev2 결정 (2026-06-10)
+
+6. **SQLite = 수집 캐시 + 감사 레코드** — better-sqlite3(동기·prebuilt). 통계는 여전히 순수 함수: DB는 시계열의 출처일 뿐 계산에 관여하지 않는다. 스키마:
+   `prices(ticker, d, close, PK(ticker,d))` + `fetch_log(ticker PK, fetched_at, points, error)`
+   흐름: fetch_log 신선(24h) → DB에서 읽기 / 아니면 원천 조회 → upsert + log → DB에서 읽기. 원천 실패 시 log에 error 기록하되 **기존 캐시가 있으면 그것으로 응답**(R4 강화).
+7. **픽스처 모드도 같은 DB 경로**(:memory: 시드) — SQLite 계층이 CI 인수 테스트에서도 실행된다(R8을 픽스처로 검증 가능).
+8. **유니버스 300 = md 큐레이션 고정** — 주식 200(시총 순)·ETF 100(AUM 순, 레버리지 포함). 레버리지 판별을 카테고리에서 비고(배율 표기 정규식)로 변경.
+9. **UI = 다크 금융 터미널** — next/font(IBM Plex Sans KR·Plex Mono), 요약 카드 4+1, 성공률 게이지 바·낙폭 바(CSS), sticky thead, fadeUp 스태거(CSS only, prefers-reduced-motion 존중). 클라이언트 JS 0 유지.
+10. next.config `serverExternalPackages: ['better-sqlite3']` — 네이티브 모듈 번들 제외.
+
 ## Decision Log
 
 | 날짜 | 결정 | 근거 |

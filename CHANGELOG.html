@@ -37,13 +37,28 @@
 </head>
 <body>
 <h1>trade-research — CHANGELOG</h1>
-<p class="meta">main 커밋 5건 · 최종 갱신 2026-06-10 · 기준 계보 main</p>
+<p class="meta">main 커밋 6건 · 최종 갱신 2026-06-10 · 기준 계보 main</p>
 <ul class="log">
     <li class="entry">
       <span class="date">2026-06-10</span>
       <span class="badge feat">feat</span>
-      <span class="subject">feat(001): 미국 주식 반등 스크리너 대시보드</span>
+      <span class="subject">feat(001-rev2): SQLite 영속화 + 유니버스 300종목 + 다크 터미널 UI</span>
       <code class="hash pending">pending</code>
+    </li>
+    <li class="entry">
+      <span class="date">2026-06-10</span>
+      <span class="badge feat">feat</span>
+      <span class="subject">feat(001): 미국 주식 반등 스크리너 대시보드</span>
+      <code class="hash">d8dee03</code>
+      <details><summary>상세</summary><pre>data/stock-universe.md(53종목, 레버리지 ETF 14종 포함)를 단일 진실로
+하락(60일 고점 -10%) 이후 20일 내 +5% 회복의 과거 빈도를 통계화해
+루트 페이지에 두 구간(지금 하락 중 / 나머지)으로 렌더한다.
+- 순수 통계 모듈(RSI·drawdown·사례 추출) TDD: 단위 24건 + fast-check 속성 2건
+- 시세: Yahoo v8 chart(무키, ISR 1h), 종목 단위 실패 흡수
+- DATA_SOURCE=fixture로 acceptance 4/4 결정론(CI e2e·budgets 동일)
+- 라이브 실측: 53/53 조회, 하락 22종목 정렬 확인
+- 게이트 수정: gates.yml base_ref 셸 보간 → env 경유(semgrep 적발)
+- 솔로 폴백 운용 명시(CLAUDE.md) — G1/G2 = 터미널, 산출물은 정식</pre></details>
     </li>
     <li class="entry">
       <span class="date">2026-06-10</span>

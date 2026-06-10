@@ -1,0 +1,159 @@
+/* 다크 금융 터미널 — specs/001 [ASSUMED 9]. WCAG AA 대비 유지. */
+:root {
+  --bg: #0a0e16;
+  --bg-raise: #0f1521;
+  --bg-card: #101724;
+  --line: #1e2738;
+  --line-soft: #161e2d;
+  --text: #e8ecf4;
+  --muted: #93a0b4;
+  --up: #3fdc97;
+  --down: #ff6464;
+  --amber: #ffb224;
+  --accent: #5ab8ff;
+  --font-s: var(--font-sans), 'Noto Sans KR', sans-serif;
+  --font-m: var(--font-mono), 'SF Mono', monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background:
+    radial-gradient(1200px 500px at 70% -10%, rgba(90, 184, 255, 0.07), transparent 60%),
+    radial-gradient(900px 400px at 10% 0%, rgba(63, 220, 151, 0.05), transparent 55%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-s);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 2rem 1.2rem 3rem; }
+
+/* ── 헤더 ── */
+.masthead {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .7rem 1.2rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1rem;
+}
+.masthead h1 {
+  margin: 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.015em;
+}
+.masthead h1::before {
+  content: '▌'; color: var(--up); margin-right: .45rem;
+}
+.masthead .sub { color: var(--muted); font-size: .85rem; }
+.meta-chip {
+  margin-left: auto; font-family: var(--font-m); font-size: .76rem; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: .25rem .7rem;
+  background: var(--bg-raise);
+}
+.meta-chip b { color: var(--up); font-weight: 600; }
+
+.params { color: var(--muted); font-size: .84rem; margin: .9rem 0 0; }
+.params code { font-family: var(--font-m); color: var(--accent); font-size: .8rem; }
+
+/* ── 요약 카드 ── */
+.cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: .8rem; margin: 1.4rem 0 2rem;
+}
+.card {
+  background: linear-gradient(160deg, var(--bg-card), var(--bg-raise));
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: .9rem 1rem .8rem;
+  animation: fadeUp .5s ease-out both;
+}
+.card:nth-child(2) { animation-delay: .06s; }
+.card:nth-child(3) { animation-delay: .12s; }
+.card:nth-child(4) { animation-delay: .18s; }
+.card .label {
+  font-size: .76rem; color: var(--muted); letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.card .value {
+  font-family: var(--font-m); font-size: 1.65rem; font-weight: 600; line-height: 1.25;
+}
+.card .value.up { color: var(--up); }
+.card .value.down { color: var(--down); }
+.card .value.warn { color: var(--amber); }
+.card .hint { font-size: .76rem; color: var(--muted); }
+
+/* ── 섹션 ── */
+section { margin-bottom: 2.2rem; }
+.sec-head { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .6rem; }
+.sec-head h2 { margin: 0; font-size: 1.02rem; font-weight: 700; }
+.sec-head .count {
+  font-family: var(--font-m); font-size: .76rem; color: var(--accent);
+  border: 1px solid var(--line); border-radius: 999px; padding: .06rem .55rem;
+}
+.sec-head .desc { color: var(--muted); font-size: .8rem; }
+
+/* ── 테이블 ── */
+.tablebox {
+  border: 1px solid var(--line); border-radius: 10px; overflow: auto;
+  max-height: 72vh; background: var(--bg-raise);
+}
+table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: .85rem; }
+thead th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--bg-card);
+  color: var(--muted); font-weight: 500; font-size: .76rem; letter-spacing: .03em;
+  text-align: left; padding: .55rem .7rem;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+tbody td {
+  padding: .48rem .7rem; border-bottom: 1px solid var(--line-soft);
+  white-space: nowrap;
+}
+tbody tr:hover td { background: rgba(90, 184, 255, 0.05); }
+tbody tr:last-child td { border-bottom: none; }
+
+.tk { font-family: var(--font-m); font-weight: 600; }
+.nm { color: var(--muted); max-width: 230px; overflow: hidden; text-overflow: ellipsis; }
+.ct { color: var(--muted); font-size: .78rem; }
+td.num { text-align: right; font-family: var(--font-m); font-variant-numeric: tabular-nums; }
+.neg { color: var(--down); }
+.rate-cell { min-width: 130px; }
+
+/* 게이지(장식 — 수치는 텍스트로 병기) */
+.gauge {
+  display: inline-block; vertical-align: middle; margin-left: .5rem;
+  width: 64px; height: 7px; border-radius: 4px; background: #1a2334; overflow: hidden;
+}
+.gauge i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #1f8a5d, var(--up));
+}
+.gauge.dd i { background: linear-gradient(90deg, #8a2b2b, var(--down)); }
+
+/* 배지 */
+.badge {
+  display: inline-block; font-size: .68rem; font-family: var(--font-m);
+  border-radius: 4px; padding: .04rem .34rem; margin-left: .4rem;
+  border: 1px solid currentColor; vertical-align: middle;
+}
+.badge.lev { color: var(--down); }
+.badge.few { color: var(--muted); border-style: dashed; }
+.badge.err { color: var(--amber); }
+tr.failed td { color: var(--amber); }
+
+/* ── 푸터 ── */
+footer {
+  border-top: 1px solid var(--line); margin-top: 1.5rem; padding-top: 1rem;
+  color: var(--muted); font-size: .82rem;
+}
+footer strong { color: var(--amber); font-weight: 600; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none; }
+}

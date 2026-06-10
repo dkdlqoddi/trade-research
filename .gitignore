@@ -14,6 +14,10 @@ coverage/
 .claude/state/
 .claude/settings.local.json
 
+# 런타임 산출물 — 시세 캐시 DB (specs/001 R8)
+data/market.db
+data/market.db-*
+
 # test artifacts
 playwright-report/
 test-results/
