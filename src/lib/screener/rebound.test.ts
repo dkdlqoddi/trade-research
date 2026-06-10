@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
-import { extractEpisodes, reboundStats, PARAMS } from './rebound';
+import { extractEpisodes, reboundStats, wilsonLow, PARAMS, PRESETS } from './rebound';
 
 // 60일 고점 100 형성 후 89로 하향 돌파 → 진입. 이후 시나리오를 덧붙이는 헬퍼.
 function seriesWithEntry(tail: number[]): number[] {
@@ -86,6 +86,79 @@ describe('reboundStats', () => {
       HORIZON: 20,
       TARGET: 0.05,
       RSI_PERIOD: 14,
+    });
+  });
+});
+
+// ── 002 확장 ──
+
+describe('wilsonLow (R14)', () => {
+  it('2/2 성공의 95% 하한 ≈ 0.342', () => {
+    expect(wilsonLow(2, 2)!).toBeCloseTo(0.3424, 3);
+  });
+
+  it('표본 0이면 null', () => {
+    expect(wilsonLow(0, 0)).toBeNull();
+  });
+
+  it('표본이 클수록 하한이 성공률에 접근한다', () => {
+    expect(wilsonLow(90, 100)!).toBeGreaterThan(wilsonLow(9, 10)!);
+  });
+
+  // R14 (Invariant): 0 ≤ 하한 ≤ 성공률
+  it('R14: 임의 표본에서 0 ≤ 하한 ≤ p', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 500 }), fc.integer({ min: 0, max: 500 }), (n, kRaw) => {
+        const k = Math.min(kRaw, n);
+        const low = wilsonLow(k, n)!;
+        expect(low).toBeGreaterThanOrEqual(0);
+        expect(low).toBeLessThanOrEqual(k / n + 1e-12);
+      }),
+    );
+  });
+});
+
+describe('회복 소요일·MAE (R1)', () => {
+  it('성공 사례 — daysToTarget=목표 최초 도달 거래일, mae=관찰 구간 최저/진입가', () => {
+    // 진입 89, 이후 90, 91, 94(3일째 목표 93.45 도달), 92×17
+    const closes = seriesWithEntry([90, 91, 94, ...Array(17).fill(92)]);
+    const [ep] = extractEpisodes(closes);
+    expect(ep.daysToTarget).toBe(3);
+    expect(ep.mae).toBeCloseTo(90 / 89 - 1, 10); // 구간 최저 90
+  });
+
+  it('실패 사례 — daysToTarget은 null, mae는 최저 반영', () => {
+    const closes = seriesWithEntry([88, 85, ...Array(18).fill(87)]);
+    const [ep] = extractEpisodes(closes);
+    expect(ep.success).toBe(false);
+    expect(ep.daysToTarget).toBeNull();
+    expect(ep.mae).toBeCloseTo(85 / 89 - 1, 10);
+  });
+
+  it('reboundStats가 평균 회복 소요일(성공만)·평균 MAE(전체)·윌슨 하한을 준다', () => {
+    const closes = seriesWithEntry([90, 91, 94, ...Array(17).fill(92)]);
+    const s = reboundStats(closes);
+    expect(s.avgRecoveryDays).toBe(3);
+    expect(s.avgMae).toBeCloseTo(90 / 89 - 1, 10);
+    expect(s.wilsonLow).toBeCloseTo(wilsonLow(1, 1)!, 10);
+  });
+});
+
+describe('프리셋 파라미터화 (R11)', () => {
+  it('공격 프리셋(−7%)은 기본(−10%)이 놓치는 얕은 하락을 진입으로 잡는다', () => {
+    // 고점 100 형성 후 92(−8%)로 하락 → 기본 미진입, 공격 진입
+    const closes = [...Array.from({ length: 30 }, (_, i) => 71 + i), 92, ...Array(25).fill(93)];
+    expect(extractEpisodes(closes, PARAMS)).toHaveLength(0);
+    expect(extractEpisodes(closes, PRESETS.aggressive.params)).toHaveLength(1);
+  });
+
+  it('PRESETS 구성 — 보수/기본/공격', () => {
+    expect(PRESETS.conservative.params).toMatchObject({ ENTRY_DD: -0.15, HORIZON: 30 });
+    expect(PRESETS.default.params).toEqual(PARAMS);
+    expect(PRESETS.aggressive.params).toMatchObject({
+      ENTRY_DD: -0.07,
+      HORIZON: 10,
+      TARGET: 0.03,
     });
   });
 });

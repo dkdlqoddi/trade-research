@@ -29,6 +29,9 @@ const FIXLEV = r2([
   ...lin(124, 135, 20), // 완만 회복(-3.2%) — 하락 상태 해제
 ]);
 
+// SPY — 시장 레짐 판정용(002 R7): 완만한 상승 = "시장 정상"
+const SPY = r2(Array.from({ length: 250 }, (_, i) => 480 * Math.pow(1.0012, i)));
+
 const fixtures = {
   universe: [
     { ticker: 'FIXUP', name: '픽스처 상승주', category: '대형주', leveraged: false, note: '' },
@@ -41,8 +44,9 @@ const fixtures = {
       note: '3x',
     },
     { ticker: 'FIXBAD', name: '픽스처 조회실패', category: '대형주', leveraged: false, note: '' },
+    { ticker: 'SPY', name: 'SPDR S&P 500(픽스처)', category: 'ETF 상위 100', leveraged: false, note: 'S&P 500' },
   ],
-  series: { FIXUP, FIXDN, FIXLEV }, // FIXBAD 없음 → 조회 실패 경로(R4)
+  series: { FIXUP, FIXDN, FIXLEV, SPY }, // FIXBAD 없음 → 조회 실패 경로(R4)
 };
 
 writeFileSync(

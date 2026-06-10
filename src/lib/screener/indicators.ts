@@ -42,3 +42,42 @@ export function trailingDrawdown(closes: number[], window: number): number | nul
   if (closes.length === 0) return null;
   return drawdownAt(closes, closes.length - 1, window);
 }
+
+// ── 002 보조지표 (R3) ──
+
+export function sma(values: number[], n: number): number | null {
+  if (values.length < n || n <= 0) return null;
+  let s = 0;
+  for (let i = values.length - n; i < values.length; i++) s += values[i];
+  return s / n;
+}
+
+// 마지막 종가의 n일 이평 대비 이격률
+export function maDistance(closes: number[], n: number): number | null {
+  const m = sma(closes, n);
+  if (m === null || m === 0) return null;
+  return closes[closes.length - 1] / m - 1;
+}
+
+// 볼린저 %B (n일, k 표준편차) — 표준편차 0(무변동)이면 null
+export function bollingerPctB(closes: number[], n = 20, k = 2): number | null {
+  if (closes.length < n) return null;
+  const win = closes.slice(-n);
+  const m = win.reduce((a, b) => a + b, 0) / n;
+  const variance = win.reduce((a, b) => a + (b - m) * (b - m), 0) / n;
+  const sd = Math.sqrt(variance);
+  if (sd === 0) return null;
+  const last = closes[closes.length - 1];
+  return (last - (m - k * sd)) / (2 * k * sd);
+}
+
+// 거래량 급증율 — 최근 short일 평균 / 직전 long일(최근 short 제외) 평균
+export function volumeSurge(volumes: number[], short = 5, long = 60): number | null {
+  if (volumes.length < short + long) return null;
+  const recent = volumes.slice(-short);
+  const base = volumes.slice(-(short + long), -short);
+  const avgRecent = recent.reduce((a, b) => a + b, 0) / short;
+  const avgBase = base.reduce((a, b) => a + b, 0) / long;
+  if (avgBase === 0) return null;
+  return avgRecent / avgBase;
+}

@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/collect?force=1",
+      "schedule": "30 21 * * 1-5"
+    }
+  ]
+}

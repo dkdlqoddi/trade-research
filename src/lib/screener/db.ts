@@ -1,13 +1,18 @@
-// SQLite 영속 계층 (R8·R9) — better-sqlite3 동기 API.
-// 역할: 일봉 시세의 수집 캐시 + 수집 감사 레코드. 통계 계산에는 관여하지 않는다(순수 함수가 담당).
+// SQLite 영속 계층 (R8·R9, 002에서 v2) — better-sqlite3 동기 API.
+// 역할: 일봉 시세 수집 캐시 + 수집 감사 + 일일 스냅샷. 통계 계산에는 관여하지 않는다(순수 함수가 담당).
 import Database from 'better-sqlite3';
 import path from 'node:path';
+
+// v3: error_log(append-only 오류 이력 — R13) 추가. v2: prices.volume, snapshots.
+// 캐시는 파생 데이터 — 구버전은 드롭 후 재생성 (002 [ASSUMED 3])
+const SCHEMA_VERSION = 3;
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS prices (
   ticker TEXT NOT NULL,
   d      TEXT NOT NULL, -- YYYY-MM-DD
   close  REAL NOT NULL,
+  volume REAL NOT NULL DEFAULT 0,
   PRIMARY KEY (ticker, d)
 );
 CREATE TABLE IF NOT EXISTS fetch_log (
@@ -16,15 +21,36 @@ CREATE TABLE IF NOT EXISTS fetch_log (
   points     INTEGER NOT NULL,
   error      TEXT
 );
+CREATE TABLE IF NOT EXISTS snapshots (
+  snap_date    TEXT NOT NULL, -- YYYY-MM-DD
+  ticker       TEXT NOT NULL,
+  in_decline   INTEGER NOT NULL,
+  drawdown     REAL,
+  rebound_rate REAL,
+  PRIMARY KEY (snap_date, ticker)
+);
+CREATE TABLE IF NOT EXISTS error_log (
+  id     INTEGER PRIMARY KEY AUTOINCREMENT,
+  ticker TEXT NOT NULL,
+  at     TEXT NOT NULL, -- ISO 8601
+  error  TEXT NOT NULL
+);
 `;
 
-export type PriceRow = { d: string; close: number };
+export type PriceRow = { d: string; close: number; volume: number };
 export type FetchMeta = {
   ticker: string;
   fetched_at: string;
   points: number;
   error: string | null;
 };
+export type SnapshotRow = {
+  ticker: string;
+  in_decline: 0 | 1;
+  drawdown: number | null;
+  rebound_rate: number | null;
+};
+export type ErrorEntry = { id: number; ticker: string; at: string; error: string };
 
 export const TTL_HOURS = 24; // [ASSUMED 7] 일봉은 하루 1회 수집이면 충분
 
@@ -40,13 +66,25 @@ export type Store = ReturnType<typeof createStore>;
 export function createStore(dbPath: string) {
   const db = new Database(dbPath);
   db.pragma('journal_mode = WAL');
-  db.exec(SCHEMA);
+
+  const ver = db.pragma('user_version', { simple: true }) as number;
+  if (ver < SCHEMA_VERSION) {
+    db.exec(
+      'DROP TABLE IF EXISTS prices; DROP TABLE IF EXISTS fetch_log; DROP TABLE IF EXISTS snapshots; DROP TABLE IF EXISTS error_log;',
+    );
+    db.exec(SCHEMA);
+    db.pragma(`user_version = ${SCHEMA_VERSION}`);
+  } else {
+    db.exec(SCHEMA);
+  }
 
   const upsert = db.prepare(
-    'INSERT INTO prices (ticker, d, close) VALUES (?, ?, ?) ' +
-      'ON CONFLICT(ticker, d) DO UPDATE SET close = excluded.close',
+    'INSERT INTO prices (ticker, d, close, volume) VALUES (?, ?, ?, ?) ' +
+      'ON CONFLICT(ticker, d) DO UPDATE SET close = excluded.close, volume = excluded.volume',
   );
-  const selectCloses = db.prepare('SELECT close FROM prices WHERE ticker = ? ORDER BY d ASC');
+  const selectSeries = db.prepare(
+    'SELECT d, close, volume FROM prices WHERE ticker = ? ORDER BY d ASC',
+  );
   const upsertLog = db.prepare(
     'INSERT INTO fetch_log (ticker, fetched_at, points, error) VALUES (?, ?, ?, ?) ' +
       'ON CONFLICT(ticker) DO UPDATE SET fetched_at = excluded.fetched_at, points = excluded.points, error = excluded.error',
@@ -55,9 +93,22 @@ export function createStore(dbPath: string) {
   const selectLatest = db.prepare(
     'SELECT MAX(fetched_at) AS latest FROM fetch_log WHERE error IS NULL',
   );
+  const insertError = db.prepare('INSERT INTO error_log (ticker, at, error) VALUES (?, ?, ?)');
+  const selectErrors = db.prepare('SELECT * FROM error_log ORDER BY at DESC, id DESC LIMIT 50');
+  const upsertSnap = db.prepare(
+    'INSERT INTO snapshots (snap_date, ticker, in_decline, drawdown, rebound_rate) VALUES (?, ?, ?, ?, ?) ' +
+      'ON CONFLICT(snap_date, ticker) DO UPDATE SET in_decline = excluded.in_decline, drawdown = excluded.drawdown, rebound_rate = excluded.rebound_rate',
+  );
+  const selectPrevDate = db.prepare(
+    'SELECT MAX(snap_date) AS d FROM snapshots WHERE snap_date < ?',
+  );
+  const selectSnap = db.prepare('SELECT ticker, in_decline FROM snapshots WHERE snap_date = ?');
 
   const upsertMany = db.transaction((ticker: string, rows: PriceRow[]) => {
-    for (const r of rows) upsert.run(ticker, r.d, r.close);
+    for (const r of rows) upsert.run(ticker, r.d, r.close, r.volume);
+  });
+  const snapMany = db.transaction((date: string, rows: SnapshotRow[]) => {
+    for (const r of rows) upsertSnap.run(date, r.ticker, r.in_decline, r.drawdown, r.rebound_rate);
   });
 
   return {
@@ -65,16 +116,41 @@ export function createStore(dbPath: string) {
       upsertMany(ticker, rows);
     },
     getCloses(ticker: string): number[] {
-      return (selectCloses.all(ticker) as Array<{ close: number }>).map((r) => r.close);
+      return (selectSeries.all(ticker) as Array<{ close: number }>).map((r) => r.close);
+    },
+    getSeries(ticker: string): { dates: string[]; closes: number[]; volumes: number[] } {
+      const rows = selectSeries.all(ticker) as Array<{ d: string; close: number; volume: number }>;
+      return {
+        dates: rows.map((r) => r.d),
+        closes: rows.map((r) => r.close),
+        volumes: rows.map((r) => r.volume),
+      };
     },
     logFetch(ticker: string, points: number, error: string | null, at?: string): void {
-      upsertLog.run(ticker, at ?? new Date().toISOString(), points, error);
+      const ts = at ?? new Date().toISOString();
+      upsertLog.run(ticker, ts, points, error);
+      if (error) insertError.run(ticker, ts, error); // R13: 이력은 append-only — 성공해도 안 지워진다
     },
     getMeta(ticker: string): FetchMeta | null {
       return (selectMeta.get(ticker) as FetchMeta | undefined) ?? null;
     },
+    getErrors(): ErrorEntry[] {
+      return selectErrors.all() as ErrorEntry[];
+    },
     latestFetchedAt(): string | null {
       return (selectLatest.get() as { latest: string | null }).latest;
+    },
+    saveSnapshot(date: string, rows: SnapshotRow[]): void {
+      snapMany(date, rows);
+    },
+    prevSnapshot(date: string): { snapDate: string; inDecline: Map<string, boolean> } | null {
+      const prev = (selectPrevDate.get(date) as { d: string | null }).d;
+      if (!prev) return null;
+      const m = new Map<string, boolean>();
+      for (const r of selectSnap.all(prev) as Array<{ ticker: string; in_decline: number }>) {
+        m.set(r.ticker, r.in_decline === 1);
+      }
+      return { snapDate: prev, inDecline: m };
     },
     close(): void {
       db.close();

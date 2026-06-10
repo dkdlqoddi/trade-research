@@ -37,4 +37,8 @@ describe('fixtures 계약', () => {
     expect(fixtures.universe.some((u) => u.ticker === 'FIXBAD')).toBe(true);
     expect(series.FIXBAD).toBeUndefined();
   });
+
+  it('SPY: 레짐 판정용 — 하락 아님(시장 정상)', () => {
+    expect(trailingDrawdown(series.SPY, PARAMS.HIGH_WINDOW)!).toBeGreaterThan(PARAMS.ENTRY_DD);
+  });
 });

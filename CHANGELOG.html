@@ -37,13 +37,30 @@
 </head>
 <body>
 <h1>trade-research — CHANGELOG</h1>
-<p class="meta">main 커밋 6건 · 최종 갱신 2026-06-10 · 기준 계보 main</p>
+<p class="meta">main 커밋 7건 · 최종 갱신 2026-06-10 · 기준 계보 main</p>
 <ul class="log">
     <li class="entry">
       <span class="date">2026-06-10</span>
       <span class="badge feat">feat</span>
-      <span class="subject">feat(001-rev2): SQLite 영속화 + 유니버스 300종목 + 다크 터미널 UI</span>
+      <span class="subject">feat(002): 스크리너 확장 1차 — 통계 심화·스냅샷·탐색 UI·상세 페이지</span>
       <code class="hash pending">pending</code>
+    </li>
+    <li class="entry">
+      <span class="date">2026-06-10</span>
+      <span class="badge feat">feat</span>
+      <span class="subject">feat(001-rev2): SQLite 영속화 + 유니버스 300종목 + 다크 터미널 UI</span>
+      <code class="hash">b372690</code>
+      <details><summary>상세</summary><pre>스펙 001 개정(rev2, 솔로 폴백 G1 재스탬프):
+- R8/R9: 시세를 SQLite(prices+fetch_log, better-sqlite3)에 저장,
+  24h TTL 내 재요청은 원천 호출 0회. 원천 장애 시 캐시 폴백(R4 강화).
+  픽스처 모드도 :memory:로 같은 경로 — CI에서 저장 계층 검증.
+- R10: 유니버스 재큐레이션 — 시총 상위 주식 200 + AUM 상위 ETF 100
+  (레버리지 포함, 비고 배율 표기로 판별). 기계 카운트 200/100, 중복 0.
+- R11: 요약 카드(유니버스·하락 중·평균 성공률·조회 실패) + 수집 시각 칩.
+- UI: 다크 금융 터미널 — IBM Plex Sans KR/Mono(next/font 자체 호스팅),
+  게이지 바·sticky thead·CSS 스태거, 클라이언트 JS 증가 0, axe AA 통과.
+검증: 단위 32/32(RED→GREEN, db 8건 추가) · acceptance 6/6 ·
+라이브 298/300 수집(prices 149,000행) · 하락 86종목 정렬 실측.</pre></details>
     </li>
     <li class="entry">
       <span class="date">2026-06-10</span>
