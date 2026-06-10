@@ -1,0 +1,6 @@
+{
+  "_comment_사용법": "이 파일을 .claude/settings.local.json 으로 복사해 개인 취향을 얹는다(자동 gitignore). allow '추가'만 허용 — deny 완화·훅 제거는 constitution 위반.",
+  "permissions": {
+    "allow": ["Bash(htop*)"]
+  }
+}

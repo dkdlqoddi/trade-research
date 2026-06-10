@@ -1,0 +1,5 @@
+# 보호 경로 — 변경은 코드 오너 리뷰 필수 (브랜치 보호의 "Require review from Code Owners"와 짝)
+# [ASSUMED] 현재 git 원격에서 확인된 팀원은 @dkdlqoddi 뿐 — 팀원 합류 시 핸들을 추가하라.
+specs/**       @dkdlqoddi
+.claude/**     @dkdlqoddi
+docs/adr/**    @dkdlqoddi

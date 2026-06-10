@@ -1,0 +1,23 @@
+# deps / build
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# env — .env.example만 커밋 (constitution)
+.env
+.env.*
+!.env.example
+
+# 개인 로컬 상태 (R4 §1-[1])
+.claude/state/
+.claude/settings.local.json
+
+# test artifacts
+playwright-report/
+test-results/
+.stryker-tmp/
+reports/
+.lighthouseci/
+stryker.log

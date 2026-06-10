@@ -1,0 +1,39 @@
+name: release
+on:
+  push:
+    tags: ['v*'] # 태그는 사람이 ask로 push한다
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+      - name: conventional commits → CHANGELOG 노트
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          PREV=$(git tag --sort=-v:refname | grep -E '^v[0-9]' | sed -n 2p)
+          RANGE=${PREV:+$PREV..}$TAG
+          {
+            echo "## $TAG"
+            echo
+            echo "### Features"
+            git log "$RANGE" --pretty='- %s (%h)' | grep -E '^- feat' || echo "- 없음"
+            echo
+            echo "### Fixes"
+            git log "$RANGE" --pretty='- %s (%h)' | grep -E '^- fix' || echo "- 없음"
+            echo
+            echo "### Breaking"
+            git log "$RANGE" --pretty='- %s (%h)' | grep -E 'BREAKING' || echo "- 없음"
+            echo
+            echo "### 기타"
+            git log "$RANGE" --pretty='- %s (%h)' | grep -vE '^- (feat|fix)' | head -20 || true
+          } > RELEASE_NOTES.md
+          cat RELEASE_NOTES.md
+      - name: GitHub Release 생성
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --notes-file RELEASE_NOTES.md --title "$GITHUB_REF_NAME"

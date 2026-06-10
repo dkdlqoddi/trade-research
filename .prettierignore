@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+.stryker-tmp/
+package-lock.json
+next-env.d.ts

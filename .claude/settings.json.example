@@ -1,0 +1,108 @@
+{
+  "model": "claude-fable-5",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-opus-4-8"
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(npx vitest*)",
+      "Bash(npx playwright test*)",
+      "Bash(npx tsc*)",
+      "Bash(npx eslint*)",
+      "Bash(npx prettier*)",
+      "Bash(npx stryker*)",
+      "Bash(npm run*)",
+      "Bash(npm test*)",
+      "Bash(npm ci*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git branch*)",
+      "Bash(git switch*)",
+      "Bash(git checkout*)",
+      "Bash(git fetch*)",
+      "Bash(git pull --rebase*)",
+      "Bash(git worktree*)",
+      "Bash(git show*)",
+      "Bash(git log*)",
+      "Bash(git ls-remote*)",
+      "Bash(git merge*)",
+      "Bash(git diff*)",
+      "Bash(git status*)",
+      "Bash(git hash-object*)",
+      "Bash(grep*)",
+      "Bash(rg*)",
+      "Bash(jq*)",
+      "Bash(find*)",
+      "Bash(head*)",
+      "Bash(tail*)",
+      "Bash(wc*)",
+      "Bash(echo*)",
+      "Bash(date*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh pr checks*)",
+      "Bash(gh run view*)",
+      "Bash(bash .claude/hooks/spec-lint.sh*)",
+      "Bash(mkdir*)",
+      "Bash(ls*)",
+      "Bash(cat*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr merge*)",
+      "Bash(gh pr review*)",
+      "Bash(gh pr edit*)",
+      "Bash(gh pr ready*)",
+      "Bash(gh release create*)",
+      "Bash(npm install*)",
+      "Bash(npx playwright install*)"
+    ],
+    "deny": [
+      "Read(./.env*)",
+      "Read(./secrets/**)",
+      "Bash(sudo*)",
+      "Bash(rm -rf /*)",
+      "Bash(git push --force*)",
+      "Bash(gh issue*)",
+      "Bash(gh secret*)",
+      "Bash(gh repo delete*)",
+      "Bash(gh api*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": ".claude/hooks/guard.sh" }]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [{ "type": "command", "command": ".claude/hooks/guard.sh" }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [{ "type": "command", "command": ".claude/hooks/post-edit.sh", "timeout": 180 }]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [{ "type": "command", "command": ".claude/hooks/done-check.sh", "timeout": 600 }]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [{ "type": "command", "command": ".claude/hooks/session-start.sh" }]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [{ "type": "command", "command": ".claude/hooks/pre-compact.sh" }]
+      }
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+name: nightly
+on:
+  schedule:
+    - cron: '0 18 * * *' # UTC 18시 = KST 03시
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deep-audit: # 이슈 생성 금지 — 결과는 summary + artifact로만
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: 'npm'
+      - run: npm ci
+      - name: 전체 뮤테이션
+        run: |
+          npx stryker run --reporters clear-text,json || MUT_FAIL=1
+          {
+            echo "## 뮤테이션 (전체)"
+            if [ -f reports/mutation/mutation.json ]; then
+              node -e "const r=require('./reports/mutation/mutation.json'); const f=r.files||{}; let k=0,t=0; for(const x of Object.values(f)){for(const m of x.mutants){t++; if(['Killed','Timeout'].includes(m.status))k++;}} console.log(\`- 점수: \${t? (100*k/t).toFixed(1):'N/A'}% (\${k}/\${t})\`)"
+            else
+              echo "- 결과 파일 없음(실패 또는 스킵)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: 의존성 감사 (moderate)
+        run: |
+          {
+            echo "## npm audit (moderate)"
+            npm audit --audit-level=moderate 2>&1 | tail -15 || true
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: 검역 테스트 전체 실행
+        run: |
+          {
+            echo "## 검역(@quarantine) 현황"
+            echo '```'
+            npx vitest run --reporter=dot -t '@quarantine' --passWithNoTests 2>&1 | tail -8 || true
+            echo '```'
+            echo "- 검역 파일: $(ls specs/_inbox/flaky-*.md 2>/dev/null | wc -l)건 (14일 초과는 수리/삭제 — constitution §8)"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: 검역 e2e
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test --grep @quarantine || echo "검역 e2e: 매칭 없음 또는 실패(위 summary 참조)"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: nightly-reports
+          path: |
+            reports/
+            playwright-report/
+          if-no-files-found: ignore
