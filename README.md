@@ -1,7 +1,8 @@
 # trade-research
 
-자율 개발 스택 R4.1 (AI-DLC × SDD × TDD × BDD) — 운영 헌법은 `CLAUDE.md`, 불변 원칙은 `specs/constitution.md`, 구축 참조는 `AUTONOMOUS-STACK-REFERENCE.md`.
+자율 개발 스택 (AI-DLC × SDD × TDD × BDD) — 운영 헌법은 `CLAUDE.md`, 불변 원칙은 `specs/constitution.md`, 구축·운영 참조는 `AUTONOMOUS-STACK-REFERENCE.md`.
 
 - **변경 이력(사람용)**: [`CHANGELOG.html`](./CHANGELOG.html) — main 커밋마다 재생성된다 (생성기 `.claude/hooks/changelog.sh`, 손편집 금지)
-- 의도 제안: `specs/_inbox/`에 .md로 (GitHub Issues 미사용)
-- 온보딩: clone → `gh auth login` → `claude` → `/hooks` 승인 → `/status`
+- **의도 제안**: GitHub Issue 폼으로 등록(`[FEAT]`/`[BUG]`/`[CHORE]`/`[SPIKE]` — 등록은 사람만). `specs/_inbox/`는 기계 피드백(ops·flaky) 전용.
+- 보안 취약점은 공개 이슈 금지 — Security Advisories(비공개)로.
+- 온보딩: clone → `gh auth login` → `claude` → `/hooks` 승인 → `/status` → 이슈 작성 후 `/spec #N`

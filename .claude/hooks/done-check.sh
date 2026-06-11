@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# done-check.sh — Stop 훅: 볼트 완료 판정 (R4 §1-[4], 예산 8분)
+# done-check.sh — Stop 훅: 볼트 완료 판정 (§17, 예산 8분)
 # 미충족 = exit 2(작업 계속). 예산 초과/5연속 실패 = exit 0 + 사람 인계(에스컬레이션 ⑤/④).
 set -uo pipefail
 

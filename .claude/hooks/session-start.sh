@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# session-start.sh — SessionStart: 맥락 3~6줄 주입 + 팀 locks 캐시 갱신 (R4 §1-[4])
+# session-start.sh — SessionStart: 맥락 3~6줄 주입 + 팀 locks 캐시 갱신 (§17)
 # 네트워크는 베스트 에포트 — 실패해도 차단하지 않는다. 항상 exit 0.
 set -uo pipefail
 
@@ -21,9 +21,18 @@ if [ -n "$ACTIVE" ]; then
   fi
 fi
 
-# 열린 팀 PR + locks 캐시 갱신 (touches 재수집)
+# 열린 팀 PR + 접수 대기 이슈 + locks 캐시 갱신 (touches 재수집)
 PRS="?"
+ISSUES="?"
 if command -v gh >/dev/null 2>&1; then
+  ILIST=$(timeout 10 gh issue list --json number --limit 100 2>/dev/null) || ILIST=""
+  if [ -n "$ILIST" ]; then
+    if command -v jq >/dev/null 2>&1; then
+      ISSUES=$(printf '%s' "$ILIST" | jq 'length')
+    else
+      ISSUES=$(printf '%s' "$ILIST" | python3 -c 'import json,sys;print(len(json.load(sys.stdin)))' 2>/dev/null || echo "?")
+    fi
+  fi
   LIST=$(timeout 10 gh pr list --json number,headRefName --limit 50 2>/dev/null) || LIST=""
   if [ -n "$LIST" ]; then
     if command -v jq >/dev/null 2>&1; then
@@ -52,9 +61,9 @@ for p in json.load(sys.stdin):
   fi
 fi
 
-CTX="[R4 상태] phase=$PHASE | 활성 볼트=${ACTIVE:-없음} | tasks 잔여=$REM
+CTX="[스택 상태] phase=$PHASE | 활성 볼트=${ACTIVE:-없음} | tasks 잔여=$REM
 마지막 컴팩션 스냅샷: $SNAP
-열린 팀 PR: $PRS — 팀 보드는 /status, 작업 시작 전 git fetch origin"
+열린 팀 PR: $PRS · 접수 대기 이슈: $ISSUES — 팀 보드는 /status, 작업 시작 전 git fetch origin"
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg c "$CTX" '{hookSpecificOutput:{hookEventName:"SessionStart",additionalContext:$c}}'

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# guard.sh — PreToolUse 게이트 (R4 §1-[4])
+# guard.sh — PreToolUse 게이트 (§17)
 # 차단 = exit 2 + stderr 사유(Claude에 피드백). jq 부재 시 python3 폴백.
 set -uo pipefail
 
@@ -53,9 +53,11 @@ if [ "$TOOL" = "Bash" ]; then
   printf '%s' "$STRIPPED" | grep -q '\.env' \
     && deny "시크릿: .env 접근 차단 — 변수 이름은 .env.example에만"
 
-  # GitHub 스코프 외 (§0.3)
-  printf '%s' "$CMD" | grep -qE '(^|[[:space:];|&])gh[[:space:]]+(issue|secret|api)([[:space:]]|$)' \
-    && deny "스코프 외: gh issue/secret/api 금지 (§0.3 — 의도 수집은 specs/_inbox/)"
+  # GitHub 스코프 (constitution §12) — 이슈 등록·수정·close는 사람 전용, Claude는 view/list/comment만
+  printf '%s' "$CMD" | grep -qE '(^|[[:space:];|&])gh[[:space:]]+issue[[:space:]]+(create|edit|close|delete|reopen|transfer|pin|unpin|lock|unlock)([[:space:]]|$)' \
+    && deny "이슈 등록·수정·close는 사람 전용 (constitution §12) — close는 머지의 Closes #N이 한다"
+  printf '%s' "$CMD" | grep -qE '(^|[[:space:];|&])gh[[:space:]]+(secret|api)([[:space:]]|$)' \
+    && deny "스코프 외: gh secret/api 금지 (constitution §12)"
   printf '%s' "$CMD" | grep -qE '(^|[[:space:];|&])gh[[:space:]]+repo[[:space:]]+delete' \
     && deny "파괴 명령: gh repo delete 차단"
 

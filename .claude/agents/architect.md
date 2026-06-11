@@ -18,7 +18,7 @@ G1 승인된 `spec.md`를 읽고 같은 디렉토리에 `design.md`와 `tasks.md
 3. **API 계약** — spec의 `## 계약` 절을 구현 가능한 수준으로 구체화
 4. **Decision Log** — `| 날짜 | 결정 | 근거 |` 표. 볼트 내부 결정은 전부 여기에(구두·채팅 결정은 무효 — constitution)
 
-## tasks.md 구성 ([F] 골격 그대로)
+## tasks.md 구성 (§21 골격 그대로)
 
 ```yaml
 ---

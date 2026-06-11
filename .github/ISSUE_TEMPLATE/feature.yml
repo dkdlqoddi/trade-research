@@ -1,0 +1,59 @@
+name: "[FEAT] 기능"
+description: "새 기능 제안 — /spec이 그대로 EARS·acceptance로 변환 가능한 형태가 기준"
+title: "[FEAT] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        등록은 사람만 한다. 접수 후 작성자가 `/spec #N`으로 이 본문을 스펙으로 흡수한다.
+        형식이 부족하면 issue-lint가 반려 코멘트를 남긴다(2차 게이트). 보안 취약점은 여기 금지 — Security Advisories(비공개)로.
+  - type: textarea
+    id: background
+    attributes:
+      label: 배경/문제
+      description: 누가, 어떤 상황에서, 무엇이 안 되는가 (왜 지금 필요한가)
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 사용자 시나리오
+      description: Given/When/Then 형식 1개 이상 — 그대로 인수 테스트가 된다
+      placeholder: |
+        Given 게스트가 장바구니에 상품 2개를 담아둔 상태에서
+        When 로그인하면
+        Then 기존 회원 장바구니와 수량 합산으로 병합된다
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대 결과
+      description: 검증 가능한 문장으로 — 모호어(적절히·빠르게·최대한·직관적 등) 금지
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 제약/비기능
+      description: 성능·보안·접근성·호환성 등 제약 (없으면 "없음")
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 영향 범위
+      description: 영향받는 화면·API·데이터 (아는 만큼)
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      description: 입력일 뿐 — 다음 작업의 선택은 사람(/spec #N 실행이 곧 선택)
+      options:
+        - P1 — 긴급
+        - P2 — 보통
+        - P3 — 낮음
+    validations:
+      required: true

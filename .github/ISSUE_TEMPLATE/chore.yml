@@ -1,0 +1,37 @@
+name: "[CHORE]/[REFACTOR] 정비"
+description: "행동 불변 작업 — 의존성·구조 정리·도구. 변경분 뮤테이션 필수 레일"
+title: "[CHORE] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        등록은 사람만 한다. 리팩토링이면 제목 접두를 `[REFACTOR]`로 바꿔라(같은 레일 — G1은 범위 승인(경량)).
+        스펙의 핵은 "행동 불변 선언 + 범위"다. RED = 기존 스위트 green 유지.
+  - type: textarea
+    id: motivation
+    attributes:
+      label: 동기
+      description: 왜 지금 이 정비가 필요한가
+    validations:
+      required: true
+  - type: textarea
+    id: invariant
+    attributes:
+      label: 행동 불변 선언
+      description: "무엇이 변하지 않는지 명시 — 예: \"모든 라우트의 응답·렌더 결과 동일, 공개 API 시그니처 불변\""
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 범위
+      description: 손대는 경로(글롭) — tasks.md touches의 근거가 된다
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: 위험
+      description: 깨질 수 있는 것과 감지 수단 (characterization 테스트 보강 필요 여부)
+    validations:
+      required: true

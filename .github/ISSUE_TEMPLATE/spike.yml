@@ -1,0 +1,31 @@
+name: "[SPIKE] 조사"
+description: "답을 모르는 질문의 타임박스 조사 — 산출물은 ADR/보고서 PR(제품 코드 머지 없음)"
+title: "[SPIKE] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        등록은 사람만 한다. 타임박스 = 볼트 예산의 1/2 (tool_calls 200 또는 60분).
+        G1 = 질문·타임박스 승인, G2 = ADR PR 리뷰.
+  - type: textarea
+    id: question
+    attributes:
+      label: 답하려는 질문
+      description: 조사가 끝났는지 판정 가능한 형태의 질문으로
+    validations:
+      required: true
+  - type: input
+    id: timebox
+    attributes:
+      label: 타임박스
+      description: 기본 = 볼트 예산의 1/2
+      placeholder: "예: 60분"
+    validations:
+      required: true
+  - type: textarea
+    id: deliverable
+    attributes:
+      label: 기대 산출물
+      description: ADR 또는 보고서 — 어떤 결정을 가능하게 하는가
+    validations:
+      required: true

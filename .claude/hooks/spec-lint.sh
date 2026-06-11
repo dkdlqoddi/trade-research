@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# spec-lint.sh — 결정론 스펙 검사기 (R4 §1-[4]). 이벤트 훅 아님: /spec · done-check · CI가 호출.
+# spec-lint.sh — 결정론 스펙 검사기 (§17). 이벤트 훅 아님: /spec · done-check · CI가 호출.
 # 사용: spec-lint.sh <specs/NNN-slug> | --all     실패 = exit 2 + 항목 목록
 set -uo pipefail
 
@@ -16,7 +16,8 @@ lint_one() {
     return 1
   fi
 
-  # ⑤ frontmatter 필수 필드 ([F])
+  # ⑤ frontmatter 필수 필드 (§21 골격)
+  # issue: 필드는 신규 스펙 필수 기재 권장이나 미강제 — 부재 = null(터미널 직행/레거시, CLAUDE.md [ASSUMED])
   local fm
   fm=$(awk '/^---$/{n++; next} n==1{print} n>=2{exit}' "$spec")
   local f
@@ -24,11 +25,11 @@ lint_one() {
     printf '%s\n' "$fm" | grep -qE "^${f}:" || errs+=("frontmatter 필수 필드 누락: $f")
   done
 
-  # ① 모든 R#가 EARS 6형식 정규식에 부합 (§5)
+  # ① 모든 R#가 EARS 6형식 정규식에 부합 (§8)
   while IFS= read -r line; do
     [ -z "$line" ] && continue
     printf '%s' "$line" | grep -qE '^R[0-9]+ \((Ubiquitous|Event|State|Optional|Unwanted|Invariant)\):' \
-      || errs+=("R# 형식 위반(§5 EARS): ${line:0:60}")
+      || errs+=("R# 형식 위반(EARS 6형식): ${line:0:60}")
   done < <(grep -E '^R[0-9]+' "$spec" 2>/dev/null || true)
 
   # ② 모호어 미사용

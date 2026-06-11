@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# pre-compact.sh — PreCompact: 컴팩션 스냅샷을 design.md에 영속화 (R4 §1-[4])
+# pre-compact.sh — PreCompact: 컴팩션 스냅샷을 design.md에 영속화 (§17)
 # design.md는 커밋 대상 = 팀 공유 기억. 항상 exit 0.
 set -uo pipefail
 

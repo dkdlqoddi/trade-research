@@ -42,6 +42,7 @@ phase=PLAN 기록. `.claude/state/budget.json`의 `started_at`을 현재 ISO8601
 3. push 직후 `git fetch origin`으로 ③ 재검사 1회 — 동시 점유 발견 시 **PR 번호 큰 쪽이 양보**(결정론 타이브레이크) 또는 에스컬레이션 ⑥
 4. 내 touches를 `.claude/state/locks/NNN.paths`에 캐시(글롭 1줄 1개)
 5. `echo -n "NNN" > .claude/state/active-bolt`
+6. PR '진행' 절에 tasks T# 체크리스트 미러: `gh pr edit <PR번호> --body "<갱신 본문>"` (ask — PLAN push에 합산되는 1회)
 
 **이 PLAN push가 볼트의 마지막 ask다 — 이후 /ship 전까지 push·확인 프롬프트 0회 무중단 자율 구간.**
 
@@ -56,3 +57,5 @@ phase=PLAN 기록. `.claude/state/budget.json`의 `started_at`을 현재 ISO8601
 - **REVIEW**: code-reviewer 위임. BLOCK 발견 시 implementer로 수정 루프(테스트 약화 방향은 금지).
 
 done-check(Stop 훅)가 전 게이트를 기계 판정한다. 통과하면 안내: "/ship NNN 로 출하 절차 시작".
+
+**진행 가시성** — 진행의 진실은 로컬(.claude/state + design.md 컴팩션 스냅샷). **1일 초과 볼트는 일 1회 WIP push 권장**(ask 1회/일 — 미승인 단계라 승인 휘발 무해, 팀이 diff로 진행을 본다).

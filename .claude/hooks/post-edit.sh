@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# post-edit.sh — PostToolUse(Edit|Write|MultiEdit) 즉시 게이트 (R4 §1-[4], 예산 30초)
+# post-edit.sh — PostToolUse(Edit|Write|MultiEdit) 즉시 게이트 (§17, 예산 30초)
 # gitleaks(변경 파일) → FORMAT → LINT → TYPECHECK → RELATED_TEST. 실패 = exit 2.
 # 부수효과: budget.json tool_calls +1
 set -uo pipefail

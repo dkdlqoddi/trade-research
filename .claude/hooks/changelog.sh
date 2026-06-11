@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# changelog.sh — CHANGELOG.html 결정론 생성기 (R4.1, 이벤트 훅 아님 — /ship·main 직접 커밋·수동 호출)
+# changelog.sh — CHANGELOG.html 결정론 생성기 (ADR 0002, 이벤트 훅 아님 — /ship·main 직접 커밋·수동 호출)
 # 사용: changelog.sh [--pending "커밋/PR 제목"]
 #   --pending = 이번에 main에 쌓일 예정인 엔트리를 맨 위에 선반영(같은 커밋에 포함시키기 위함)
 # 단일 진실은 git log(main 계보) — 같은 이력이면 같은 HTML. 손편집 금지(재생성이 덮는다).
