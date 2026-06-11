@@ -47,6 +47,7 @@
       "Bash(gh issue view*)",
       "Bash(gh issue list*)",
       "Bash(bash .claude/hooks/spec-lint.sh*)",
+      "Bash(bash .claude/hooks/issue-lint.sh*)",
       "Bash(mkdir*)",
       "Bash(ls*)",
       "Bash(cat*)"

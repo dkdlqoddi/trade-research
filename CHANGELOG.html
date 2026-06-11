@@ -37,13 +37,35 @@
 </head>
 <body>
 <h1>trade-research — CHANGELOG</h1>
-<p class="meta">main 커밋 12건 · 최종 갱신 2026-06-11 · 기준 계보 main</p>
+<p class="meta">main 커밋 13건 · 최종 갱신 2026-06-11 · 기준 계보 main</p>
 <ul class="log">
     <li class="entry">
       <span class="date">2026-06-11</span>
       <span class="badge chore">chore</span>
-      <span class="subject">chore: 스택 R9 재조정 — [SEC] 폼 접수·직렬화 장치·리비전 드리프트 감지</span>
+      <span class="subject">chore: R9 재조정 마감 — issue-lint allow 등록·REFERENCE_REV 스탬프</span>
       <code class="hash pending">pending</code>
+    </li>
+    <li class="entry">
+      <span class="date">2026-06-11</span>
+      <span class="badge chore">chore</span>
+      <span class="subject">chore: 스택 R9 재조정 — [SEC] 폼 접수·직렬화 장치·리비전 드리프트 감지</span>
+      <code class="hash">23afd2c</code>
+      <details><summary>상세</summary><pre>REFERENCE_REV 부재 + 기존 산출물 존재 = 버전 미상 재조정 모드(R7 산출물 ↔ R9 참조 문서).
+운영자 터미널 구현 지시를 솔로 폴백 AMEND 승인으로 간주(CLAUDE.md [ASSUMED] 15).
+- [SEC] 접수 경로 전환: Security Advisories → security.yml 이슈 폼(프라이빗 — 팀 한정
+  가시성). issue-lint [SEC] 레인(필수 섹션 4종), feature/bug/config 폼·constitution·
+  CLAUDE.md·README 동조. 실자격증명·시크릿·PoC는 이슈에도 금지 유지.
+- 머지 직렬화 표준화: merge queue(EC 전용) → auto-merge + up-to-date 요구.
+  ship/review/address 커맨드, constitution 12절, CLAUDE.md GATE2·G2 문구 일반화.
+- 리비전 드리프트 감지: session-start가 .claude/REFERENCE_REV ↔ 참조 문서 헤더
+  버전 토큰 불일치 시 재조정 경고 주입. REV 파일 생성은 permissions 사람 적용
+  확인 후로 보류(이중 안전 원칙).
+- 참조 문서 § 앵커 제거(앵커 금지 원칙): 훅 7종·에이전트 3종·커맨드 2종 주석을
+  개념명으로 교체. constitution 자기 절 참조는 유효 앵커로 유지.
+- gates.yml: merge_group 주석 정정 + playwright-report retention-days 7.
+전원 /hooks 재승인 필요(훅 스크립트 변경 — 솔로: 본인 세션 /hooks).
+검증: bash -n 8/8 · YAML 9/9 · settings JSON 파싱 · 치환 토큰 0건 · 스모크(guard/
+issue-lint/session-start REV 경고) 통과.</pre></details>
     </li>
     <li class="entry">
       <span class="date">2026-06-11</span>
