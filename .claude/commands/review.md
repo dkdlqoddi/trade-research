@@ -14,7 +14,7 @@ gh pr view $ARGUMENTS --json isDraft,title,headRefName,files
 ```
 - **Draft + 스펙만** (specs/·acceptance/ 변경뿐) → **G1 모드**: 아래 ①과 의도·리스크 검토만. verification.md가 아직 없으므로 ③ 생략.
 - **Ready** → **G2 모드**: ①~④ 전체.
-- **재승인 요청(merge queue 충돌 탈락)**: 직전 Approve 이후의 diff가 **origin/main 병합 커밋 하나뿐**인지 확인 — 맞으면 그 사실만 브리프에 적고 승인 권고, 기능 변경이 섞였으면 변경 요청 권고.
+- **재승인 요청(머지 대기 중 main 전진 — out-of-date·충돌)**: 직전 Approve 이후의 diff가 **origin/main 병합 커밋 하나뿐**인지 확인 — 맞으면 그 사실만 브리프에 적고 승인 권고, 기능 변경이 섞였으면 변경 요청 권고.
 
 ## ① spec-lint 재실행
 

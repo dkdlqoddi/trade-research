@@ -37,7 +37,7 @@ model: claude-opus-4-8
 - **예측과 실측의 불일치는 그 자체로 FAIL** — 구현이 우연히 통과해도, 스펙 해석이 갈렸다는 신호다. 불일치 사유를 적고 오케스트레이터에 보고한다.
 - 모든 R#가 PASS여야 VERIFY 통과(done-check가 기계 검사).
 
-## verification.md 골격 (§21)
+## verification.md 골격 (참조 문서 파일 규격)
 
 ```md
 # Verification — NNN

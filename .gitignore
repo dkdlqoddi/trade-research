@@ -10,7 +10,7 @@ coverage/
 .env.*
 !.env.example
 
-# 개인 로컬 상태 (R4 §1-[1])
+# 개인 로컬 상태 — 페이즈·예산·locks 캐시는 커밋하지 않는다
 .claude/state/
 .claude/settings.local.json
 

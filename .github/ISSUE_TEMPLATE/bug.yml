@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         등록은 사람만 한다. 재현 절차가 그대로 재현 실패 테스트가 된다 — 2단계 이상, 구체적으로.
-        보안 취약점은 여기 금지 — Security Advisories(비공개)로.
+        보안 취약점은 여기 금지 — [SEC] 폼으로(프라이빗이라 팀 한정 가시성).
   - type: textarea
     id: steps
     attributes:

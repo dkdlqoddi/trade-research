@@ -1,7 +1,7 @@
 name: gates
 on:
   pull_request:
-  merge_group: # merge queue 직렬화
+  merge_group: # EC 조직의 merge queue용 — 타 플랜에선 발화하지 않음(무해). 표준 직렬화는 auto-merge + up-to-date
   push:
     branches: [main]
 concurrency:
@@ -51,6 +51,7 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report/
+          retention-days: 7 # 프라이빗 아티팩트 스토리지 과금 절약
 
   budgets:
     runs-on: ubuntu-latest

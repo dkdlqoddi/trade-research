@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# issue-lint.sh — 접수 형식 검사기 (§17). 이벤트 훅 아님: /triage와 /spec #N이 호출한다.
+# issue-lint.sh — 접수 형식 검사기 (호출형 — 이벤트 훅 아님: /triage와 /spec #N이 호출한다)
 # 사용: issue-lint.sh <이슈번호>     실패 = exit 2 + 위반 항목 목록(이 목록이 그대로 반려 코멘트 본문)
 # 검사(전부 기계 판정): ① 제목 접두 ② 폼 필수 섹션(### 헤더) ③ FEAT: Given/When/Then ≥1
 #                       ④ 기대 결과의 모호어(spec-lint-words.txt 재사용) ⑤ BUG: 재현 절차 ≥2단계
@@ -25,7 +25,8 @@ BODY=$(gh issue view "$N" --json body --jq .body 2>/dev/null) || BODY=""
 
 errs=()
 
-# ① 제목 접두 — [FEAT]/[BUG]/[CHORE]/[REFACTOR]/[SPIKE] 중 하나. [SEC]는 공개 이슈 금지(비공개 신고).
+# ① 제목 접두 — [FEAT]/[BUG]/[CHORE]/[REFACTOR]/[SPIKE]/[SEC] 중 하나.
+# [SEC]는 프라이빗 리포 전제로 폼 접수(가시성 = 팀 한정) — 단 실자격증명·시크릿·PoC는 이슈에도 금지.
 KIND=""
 case "$TITLE" in
   \[FEAT\]*) KIND=FEAT ;;
@@ -33,8 +34,8 @@ case "$TITLE" in
   \[CHORE\]*) KIND=CHORE ;;
   \[REFACTOR\]*) KIND=CHORE ;;
   \[SPIKE\]*) KIND=SPIKE ;;
-  \[SEC\]*) errs+=("[SEC]는 공개 이슈 금지 — Security Advisories(비공개 신고)로. 본문에 취약점 상세를 남기지 말 것") ;;
-  *) errs+=("제목 접두 위반: [FEAT]·[BUG]·[CHORE]·[REFACTOR]·[SPIKE] 중 하나로 시작해야 함 (현재: ${TITLE:0:40})") ;;
+  \[SEC\]*) KIND=SEC ;;
+  *) errs+=("제목 접두 위반: [FEAT]·[BUG]·[CHORE]·[REFACTOR]·[SPIKE]·[SEC] 중 하나로 시작해야 함 (현재: ${TITLE:0:40})") ;;
 esac
 
 # 본문 섹션 헤더 목록 (Issue Forms가 label을 '### 라벨'로 렌더)
@@ -55,6 +56,7 @@ case "$KIND" in
   BUG)   req=("재현 절차" "기대 vs 실제" "환경/로그") ;;
   CHORE) req=("동기" "행동 불변 선언" "범위" "위험") ;;
   SPIKE) req=("답하려는 질문" "타임박스" "기대 산출물") ;;
+  SEC)   req=("영향 범위" "재현 경로" "심각도" "노출 기간") ;;
 esac
 for s in ${req[@]+"${req[@]}"}; do
   has_section "$s" || errs+=("필수 섹션 누락: ### $s")

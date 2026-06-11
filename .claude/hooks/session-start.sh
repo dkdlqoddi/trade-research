@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
-# session-start.sh — SessionStart: 맥락 3~6줄 주입 + 팀 locks 캐시 갱신 (§17)
+# session-start.sh — SessionStart: 맥락 3~6줄 주입 + 팀 locks 캐시 갱신
 # 네트워크는 베스트 에포트 — 실패해도 차단하지 않는다. 항상 exit 0.
 set -uo pipefail
 
 PHASE=$(cat .claude/state/phase 2>/dev/null || printf 'IDLE')
 ACTIVE=$(cat .claude/state/active-bolt 2>/dev/null || true)
+
+# 리비전 드리프트 감지: REFERENCE_REV ↔ 참조 문서 헤더 버전 토큰
+REVWARN=""
+DOC_REV=$(grep -m1 -oE '^\*\*버전\*\* R[0-9]+' AUTONOMOUS-STACK-REFERENCE.md 2>/dev/null | grep -oE 'R[0-9]+' || true)
+CUR_REV=$(cat .claude/REFERENCE_REV 2>/dev/null || true)
+if [ -n "$DOC_REV" ] && [ "$CUR_REV" != "$DOC_REV" ]; then
+  REVWARN="⚠ 재조정 필요: 산출물 리비전(${CUR_REV:-없음}) ≠ 참조 문서(${DOC_REV}) — AUTONOMOUS-STACK-REFERENCE.md 설치 절차의 재조정 모드 수행"
+fi
 
 SPEC_DIR=""
 REM="-"
@@ -64,6 +72,8 @@ fi
 CTX="[스택 상태] phase=$PHASE | 활성 볼트=${ACTIVE:-없음} | tasks 잔여=$REM
 마지막 컴팩션 스냅샷: $SNAP
 열린 팀 PR: $PRS · 접수 대기 이슈: $ISSUES — 팀 보드는 /status, 작업 시작 전 git fetch origin"
+[ -n "$REVWARN" ] && CTX="$CTX
+$REVWARN"
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg c "$CTX" '{hookSpecificOutput:{hookEventName:"SessionStart",additionalContext:$c}}'

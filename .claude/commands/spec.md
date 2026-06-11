@@ -45,9 +45,9 @@ specs/ 디렉토리와 origin feat/* 브랜치의 최대 번호 + 1, 세 자리 
 ## ⑤ spec-writer 위임
 
 `specs/NNN-slug/spec.md` + `acceptance/NNN-slug/S*.spec.ts` 골격 작성:
-- frontmatter §21 골격(`issue: N`, `status: draft`, owner = `git config user.name` 기준 핸들)
+- frontmatter 참조 문서 파일 규격 골격(`issue: N`, `status: draft`, owner = `git config user.name` 기준 핸들)
 - EARS R# 6형식 · S# (covers:) · `[ASSUMED]` 전부 · API 감지 시 `## 계약`
-- 작업 유형 레일 반영: [BUG]면 재현 실패 테스트가 스펙의 핵(기존 승인 스펙의 위반 입증 — 행동 정의가 안 바뀌면 G1 생략 가능 명시), [CHORE]/[REFACTOR]면 행동 불변 선언 + 범위 + 변경분 뮤테이션 필수, [SPIKE]면 산출물 = ADR/보고서 PR·타임박스 = 볼트 예산 1/2.
+- 작업 유형 레일 반영: [BUG]면 재현 실패 테스트가 스펙의 핵(기존 승인 스펙의 위반 입증 — 행동 정의가 안 바뀌면 G1 생략 가능 명시), [CHORE]/[REFACTOR]면 행동 불변 선언 + 범위 + 변경분 뮤테이션 필수, [SPIKE]면 산출물 = ADR/보고서 PR·타임박스 = 볼트 예산 1/2, [SEC]면 핫픽스 레인 준용(축소 게이트 + 24h 내 테스트·스펙 소급, touches 우선권) — 스펙에도 실자격증명·PoC 금지.
 
 ## ⑥ 검증 → Draft PR
 

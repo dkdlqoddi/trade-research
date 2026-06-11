@@ -1,5 +1,1 @@
-blank_issues_enabled: false
-contact_links:
-  - name: "[SEC] 보안 취약점 신고 (비공개)"
-    url: https://github.com/dkdlqoddi/trade-research/security/advisories/new
-    about: 보안 취약점은 공개 이슈 금지 — Security Advisories로 비공개 신고한다 (핫픽스 레인 준용).
+blank_issues_enabled: false # 형식 밖 자유 등록 차단 — 접수는 폼 6종([FEAT]/[BUG]/[CHORE]·[REFACTOR]/[SPIKE]/[SEC])으로만

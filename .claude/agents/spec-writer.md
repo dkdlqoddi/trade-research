@@ -14,7 +14,7 @@ model: claude-opus-4-8
 
 ## 산출 규격
 
-1. **frontmatter** — §21 골격 그대로 (훅·타 팀원 Claude Code가 이 이름으로 파싱):
+1. **frontmatter** — 참조 문서 파일 규격 골격 그대로 (훅·타 팀원 Claude Code가 이 이름으로 파싱):
    ```yaml
    ---
    id: NNN
@@ -27,7 +27,7 @@ model: claude-opus-4-8
    approved_sha: null
    ---
    ```
-2. **요구사항 R#** — §8 EARS 6형식만 사용. 형식: `R<번호> (<Ubiquitous|Event|State|Optional|Unwanted|Invariant>): <문장>`
+2. **요구사항 R#** — EARS 6형식만 사용. 형식: `R<번호> (<Ubiquitous|Event|State|Optional|Unwanted|Invariant>): <문장>`
    - `(Invariant)` R#는 속성 테스트(fast-check) 의무 대상임을 본문에 명시.
    - 모호어 금지(`.claude/hooks/spec-lint-words.txt`) — 측정 가능한 수치·조건으로.
 3. **시나리오 S#** — `S<번호> (covers: R1,R2): Given/When/Then …`. 모든 R#는 최소 1개 S#에 covered.

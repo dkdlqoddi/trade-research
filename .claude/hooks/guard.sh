@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# guard.sh — PreToolUse 게이트 (§17)
+# guard.sh — PreToolUse 게이트 (파괴 명령·보호 경로·페이즈 규율·스펙 동결·조정 잠금)
 # 차단 = exit 2 + stderr 사유(Claude에 피드백). jq 부재 시 python3 폴백.
 set -uo pipefail
 

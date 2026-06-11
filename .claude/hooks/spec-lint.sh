@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# spec-lint.sh — 결정론 스펙 검사기 (§17). 이벤트 훅 아님: /spec · done-check · CI가 호출.
+# spec-lint.sh — 결정론 스펙 검사기 (호출형 — 이벤트 훅 아님: /spec · done-check · CI가 호출)
 # 사용: spec-lint.sh <specs/NNN-slug> | --all     실패 = exit 2 + 항목 목록
 set -uo pipefail
 
@@ -16,7 +16,7 @@ lint_one() {
     return 1
   fi
 
-  # ⑤ frontmatter 필수 필드 (§21 골격)
+  # ⑤ frontmatter 필수 필드 (참조 문서 파일 규격 골격)
   # issue: 필드는 신규 스펙 필수 기재 권장이나 미강제 — 부재 = null(터미널 직행/레거시, CLAUDE.md [ASSUMED])
   local fm
   fm=$(awk '/^---$/{n++; next} n==1{print} n>=2{exit}' "$spec")
@@ -25,7 +25,7 @@ lint_one() {
     printf '%s\n' "$fm" | grep -qE "^${f}:" || errs+=("frontmatter 필수 필드 누락: $f")
   done
 
-  # ① 모든 R#가 EARS 6형식 정규식에 부합 (§8)
+  # ① 모든 R#가 EARS 6형식 정규식에 부합
   while IFS= read -r line; do
     [ -z "$line" ] && continue
     printf '%s' "$line" | grep -qE '^R[0-9]+ \((Ubiquitous|Event|State|Optional|Unwanted|Invariant)\):' \
