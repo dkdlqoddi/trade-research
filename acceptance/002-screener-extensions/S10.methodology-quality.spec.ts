@@ -11,5 +11,6 @@ test('S10 방법론 페이지와 품질 패널이 한계를 드러낸다', async
   await page.goto('/');
   const panel = page.getByTestId('quality-panel');
   await panel.locator('summary').click();
-  await expect(panel.getByText('FIXBAD')).toBeVisible();
+  // error_log는 append-only(이력) — 같은 프로세스에서 여러 건 쌓일 수 있어 first로 존재 검증
+  await expect(panel.getByText('FIXBAD').first()).toBeVisible();
 });

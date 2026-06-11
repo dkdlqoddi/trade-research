@@ -14,7 +14,7 @@ export default function Methodology() {
         </span>
       </header>
 
-      <section>
+      <section id="definition">
         <h2>정의</h2>
         <p>
           <strong>하락 상태</strong> = 최근 60거래일 고점 대비 종가가 임계 낙폭 이상 낮은 상태.{' '}
@@ -47,6 +47,29 @@ export default function Methodology() {
           진입 후 관찰 기간이 남지 않은 미완결 사례는 표본에서 제외한다. MAE는 진입 후 관찰 구간
           최저 종가의 진입가 대비 비율 — &quot;반등 전에 얼마나 더 빠졌나&quot;.
         </p>
+      </section>
+
+
+      <section id="terms">
+        <h2>용어</h2>
+        <ul>
+          <li id="wilson">
+            <strong>윌슨 95% 하한</strong> — 성공률의 윌슨 점수 구간 하한(z=1.96). 표본이 작을수록
+            성공률보다 크게 낮아져, 소표본 100%의 과대 노출을 막는 정렬 기준이다.
+          </li>
+          <li id="mae">
+            <strong>MAE</strong> — 진입 후 관찰 구간 최저 종가의 진입가 대비 하락률. 반등을 기다리는
+            동안 견뎌야 했던 최대 손실 깊이.
+          </li>
+          <li id="pctb">
+            <strong>볼린저 %B</strong> — 20일 ±2σ 밴드 안에서의 상대 위치. 0이면 하단, 1이면 상단,
+            밴드 밖이면 범위를 벗어난다.
+          </li>
+          <li id="volsurge">
+            <strong>거래량 급증</strong> — 최근 5일 평균 거래량 ÷ 직전 60일 평균. 1보다 크면 평소보다
+            거래가 몰린 상태(투매 또는 매집 — 방향은 말해주지 않는다).
+          </li>
+        </ul>
       </section>
 
       <section>

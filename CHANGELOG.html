@@ -37,13 +37,43 @@
 </head>
 <body>
 <h1>trade-research — CHANGELOG</h1>
-<p class="meta">main 커밋 7건 · 최종 갱신 2026-06-10 · 기준 계보 main</p>
+<p class="meta">main 커밋 9건 · 최종 갱신 2026-06-11 · 기준 계보 main</p>
 <ul class="log">
+    <li class="entry">
+      <span class="date">2026-06-11</span>
+      <span class="badge feat">feat</span>
+      <span class="subject">feat(003): UX 개선 일괄 — 로딩·모바일·URL 상태·차트·비교·접근성·CSV</span>
+      <code class="hash pending">pending</code>
+    </li>
+    <li class="entry">
+      <span class="date">2026-06-11</span>
+      <span class="badge chore">chore</span>
+      <span class="subject">chore: 자율 개발 스택 재구축 — 참조 문서 정합</span>
+      <code class="hash">17a0260</code>
+      <details><summary>상세</summary><pre>- GitHub 접수 산출물 신설: Issue Forms 5종(폼 라벨 = issue-lint 필수 섹션과 1:1)·PR 템플릿
+- /spec 이슈 흡수·/triage·/address 등 커맨드 11종 체계와 issue-lint 2차 게이트
+- settings.json gh issue 권한 세분화: view/list allow · comment ask · 변이 4종 deny
+- 훅·에이전트·거버넌스 문서 전수 검증, 구판 섹션 인용 정리
+CHANGELOG.html 미동반: 기능 이력 아닌 방법론 변경 — 운영자 지시(constitution §13 예외)</pre></details>
+    </li>
     <li class="entry">
       <span class="date">2026-06-10</span>
       <span class="badge feat">feat</span>
       <span class="subject">feat(002): 스크리너 확장 1차 — 통계 심화·스냅샷·탐색 UI·상세 페이지</span>
-      <code class="hash pending">pending</code>
+      <code class="hash">1b09da7</code>
+      <details><summary>상세</summary><pre>스펙 002(R1~R14, 솔로 폴백 G1): 제안 기능 일괄 구현.
+제외(후속 볼트): 알림 웹훅(시크릿 — 에스컬레이션 ③)·펀더멘털·점수화·공개 API.
+- 통계: 윌슨 95% 하한(정렬 기준 교체 — 소표본 과대 노출 방지),
+  회복 소요일·MAE, MA50/200 이격·볼린저 %B·거래량 급증율
+- SQLite v3: prices.volume, 일일 snapshots(신규 진입 판정),
+  append-only error_log(품질 패널 이력)
+- 페이지: 신규 진입 구간·시장 레짐 칩(SPY)·프리셋 3종(보수/기본/공격)·
+  스파크라인·품질 패널·/t/[ticker] 상세(차트+진입 마커+사례 표)·
+  /methodology(생존 편향 명시)·ExplorerTable(검색·정렬·관심목록, 첫 클라이언트 컴포넌트)
+- /api/collect(계약 절·Bearer 인증·timingSafeEqual) + vercel.json cron
+검증: RED→GREEN 단위 55/55(속성 3) · acceptance 13/13 ·
+라이브 298/300(volume 149,000행·스냅샷 298·레짐 칩) ·
+독립 에이전트 2기(diff 리뷰 🟡5건 전부 수정 반영 / 전 파일 일관성 5/5 PASS)</pre></details>
     </li>
     <li class="entry">
       <span class="date">2026-06-10</span>

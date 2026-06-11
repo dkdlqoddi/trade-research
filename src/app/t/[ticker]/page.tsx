@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { analyzeTicker } from '@/lib/screener/screener';
-import { PRESETS, type PresetKey } from '@/lib/screener/rebound';
+import { analyzeTicker, analyzeUniverse, sortByWilson } from '@/lib/screener/screener';
+import { PRESETS, extractEpisodes, type PresetKey } from '@/lib/screener/rebound';
+import { PriceChart } from '@/app/components/PriceChart';
+import { TERMS } from '@/app/components/terms';
 
 export const revalidate = 3600;
 
@@ -9,55 +11,21 @@ const pct = (v: number | null, digits = 1) => (v === null ? '—' : `${(v * 100)
 const rate = (v: number | null) => (v === null ? 'N/A' : `${Math.round(v * 100)}%`);
 const num = (v: number | null, digits = 2) => (v === null ? '—' : v.toFixed(digits));
 
+const RANGES = { '6m': { label: '6M', days: 126 }, '1y': { label: '1Y', days: 252 }, '2y': { label: '2Y', days: Infinity } } as const;
+type RangeKey = keyof typeof RANGES;
+
 function resolvePreset(raw: string | undefined): PresetKey {
   return raw && raw in PRESETS ? (raw as PresetKey) : 'default';
 }
+function resolveRange(raw: string | undefined): RangeKey {
+  return raw && raw in RANGES ? (raw as RangeKey) : '2y';
+}
 
-// 2년 가격 차트 + 진입 마커(R8) — 서버 SVG, 의존성 0
-function PriceChart({
-  closes,
-  markers,
-}: {
-  closes: number[];
-  markers: Array<{ index: number; success: boolean }>;
-}) {
-  const W = 920;
-  const H = 260;
-  const PAD = 8;
-  if (closes.length < 2) return <p className="empty">차트 데이터 없음.</p>;
-  const min = Math.min(...closes);
-  const max = Math.max(...closes);
-  const span = max - min || 1;
-  const x = (i: number) => PAD + (i / (closes.length - 1)) * (W - PAD * 2);
-  const y = (c: number) => H - PAD - ((c - min) / span) * (H - PAD * 2);
-  const pts = closes.map((c, i) => `${x(i).toFixed(1)},${y(c).toFixed(1)}`).join(' ');
+function Info({ k }: { k: keyof typeof TERMS }) {
   return (
-    <svg
-      className="chart"
-      data-testid="price-chart"
-      viewBox={`0 0 ${W} ${H}`}
-      role="img"
-      aria-label="2년 가격 차트와 과거 진입 시점"
-    >
-      <polyline points={pts} fill="none" stroke="var(--accent)" strokeWidth="1.6" />
-      {markers.map((m) => (
-        <circle
-          key={m.index}
-          cx={x(m.index)}
-          cy={y(closes[m.index])}
-          r="4.5"
-          fill={m.success ? 'var(--up)' : 'var(--down)'}
-          stroke="var(--bg)"
-          strokeWidth="1.5"
-        />
-      ))}
-      <text x={PAD} y={12} className="axis">
-        {max.toFixed(2)}
-      </text>
-      <text x={PAD} y={H - 2} className="axis">
-        {min.toFixed(2)}
-      </text>
-    </svg>
+    <a className="info" href={TERMS[k].anchor} title={TERMS[k].title}>
+      ⓘ
+    </a>
   );
 }
 
@@ -66,18 +34,38 @@ export default async function TickerPage({
   searchParams,
 }: {
   params: Promise<{ ticker: string }>;
-  searchParams: Promise<{ preset?: string }>;
+  searchParams: Promise<{ preset?: string; range?: string }>;
 }) {
   const ticker = decodeURIComponent((await params).ticker).toUpperCase();
-  const preset = resolvePreset((await searchParams).preset);
+  const sp = await searchParams;
+  const preset = resolvePreset(sp.preset);
+  const range = resolveRange(sp.range);
   const detail = await analyzeTicker(ticker, preset);
   if (!detail) notFound();
 
-  const { entry, dates, closes, episodes, stats } = detail;
+  const { entry, dates, closes, volumes, episodes, stats } = detail;
   const p = PRESETS[preset].params;
+
+  // R9: 이웃 탐색 — 기본 프리셋 하락 정렬 기준
+  const all = await analyzeUniverse('default');
+  const declining = all.filter((s) => !s.error && s.inDecline).sort(sortByWilson);
+  const idx = declining.findIndex((s) => s.ticker === ticker);
+  const prev = idx > 0 ? declining[idx - 1] : null;
+  const next = idx >= 0 && idx < declining.length - 1 ? declining[idx + 1] : null;
+  const compareWith = next?.ticker ?? prev?.ticker ?? 'SPY';
+
+  // R8: 기간 슬라이스 — 차트 마커는 보이는 구간 기준 재추출(사례 표는 전체 시계열)
+  const n = RANGES[range].days === Infinity ? closes.length : Math.min(closes.length, RANGES[range].days);
+  const vCloses = closes.slice(-n);
+  const vDates = dates.slice(-n);
+  const vVolumes = volumes.slice(-n);
+  const vEpisodes = extractEpisodes(vCloses, p);
 
   return (
     <div className="wrap">
+      <a className="skip-link" href="#main">
+        본문으로 건너뛰기
+      </a>
       <header className="masthead">
         <h1>
           {entry.ticker} <span className="sub">{entry.name}</span>
@@ -90,124 +78,175 @@ export default async function TickerPage({
         </span>
       </header>
 
-      {stats.error ? (
-        <p className="empty">
-          <span className="badge err">조회 실패</span> {stats.error}
-        </p>
-      ) : (
-        <>
-          <div className="cards">
-            <div className="card">
-              <div className="label">현재 낙폭(60일)</div>
-              <div className={`value${stats.inDecline ? ' down' : ''}`}>{pct(stats.drawdown)}</div>
-              <div className="hint">종가 {num(stats.lastClose)}</div>
-            </div>
-            <div className="card">
-              <div className="label">반등 성공률</div>
-              <div className="value up">{rate(stats.reboundRate)}</div>
-              <div className="hint">
-                윌슨 하한 {rate(stats.wilsonLow)} · 표본 {stats.episodes}
-              </div>
-            </div>
-            <div className="card">
-              <div className="label">평균 회복 소요</div>
-              <div className="value">
-                {stats.avgRecoveryDays === null ? '—' : stats.avgRecoveryDays.toFixed(1)}
-              </div>
-              <div className="hint">거래일(성공 사례)</div>
-            </div>
-            <div className="card">
-              <div className="label">평균 MAE</div>
-              <div className="value warn">{pct(stats.avgMae)}</div>
-              <div className="hint">진입 후 관찰 구간 최저</div>
-            </div>
-          </div>
+      <nav className="neighbor-nav" data-testid="neighbor-nav" aria-label="이웃 종목">
+        {prev ? (
+          <Link href={`/t/${prev.ticker}`}>← {prev.ticker}</Link>
+        ) : (
+          <span className="sub">←</span>
+        )}
+        <span className="sub">
+          {idx >= 0 ? `하락 구간 ${idx + 1}/${declining.length}` : '하락 구간 밖'}
+        </span>
+        {next ? (
+          <Link href={`/t/${next.ticker}`}>{next.ticker} →</Link>
+        ) : (
+          <span className="sub">→</span>
+        )}
+        <Link className="tool-link" href={`/compare?a=${entry.ticker}&b=${compareWith}`}>
+          ⇄ 비교
+        </Link>
+      </nav>
 
-          <section>
-            <div className="sec-head">
-              <h2>2년 가격 + 진입 마커</h2>
-              <span className="desc">
-                ● 성공 / ● 실패 — 프리셋: {PRESETS[preset].label}(−
-                {Math.round(p.ENTRY_DD * -100)}%/{p.HORIZON}일/+{Math.round(p.TARGET * 100)}%)
-              </span>
-            </div>
-            <PriceChart
-              closes={closes}
-              markers={episodes.map((e) => ({ index: e.entryIndex, success: e.success }))}
-            />
-          </section>
-
-          <section>
-            <div className="sec-head">
-              <h2>보조지표</h2>
-            </div>
+      <main id="main">
+        {stats.error ? (
+          <p className="empty">
+            <span className="badge err">조회 실패</span> {stats.error}
+          </p>
+        ) : (
+          <>
             <div className="cards">
               <div className="card">
-                <div className="label">MA50 이격</div>
-                <div className="value">{pct(stats.maDist50)}</div>
+                <div className="label">현재 낙폭(60일)</div>
+                <div className={`value${stats.inDecline ? ' down' : ''}`}>{pct(stats.drawdown)}</div>
+                <div className="hint">종가 {num(stats.lastClose)}</div>
               </div>
               <div className="card">
-                <div className="label">MA200 이격</div>
-                <div className="value">{pct(stats.maDist200)}</div>
-              </div>
-              <div className="card">
-                <div className="label">볼린저 %B</div>
-                <div className="value">{stats.pctB === null ? '—' : stats.pctB.toFixed(2)}</div>
-              </div>
-              <div className="card">
-                <div className="label">거래량 급증</div>
-                <div className="value">
-                  {stats.volSurge === null ? '—' : `${stats.volSurge.toFixed(2)}×`}
+                <div className="label">
+                  반등 성공률 <Info k="wilson" />
                 </div>
-                <div className="hint">최근 5일 / 직전 60일</div>
+                <div className="value up">{rate(stats.reboundRate)}</div>
+                <div className="hint">
+                  윌슨 하한 {rate(stats.wilsonLow)} · 표본 {stats.episodes}
+                </div>
               </div>
               <div className="card">
-                <div className="label">RSI(14)</div>
-                <div className="value">{stats.rsi14 === null ? '—' : Math.round(stats.rsi14)}</div>
+                <div className="label">평균 회복 소요</div>
+                <div className="value">
+                  {stats.avgRecoveryDays === null ? '—' : stats.avgRecoveryDays.toFixed(1)}
+                </div>
+                <div className="hint">거래일(성공 사례)</div>
+              </div>
+              <div className="card">
+                <div className="label">
+                  평균 MAE <Info k="mae" />
+                </div>
+                <div className="value warn">{pct(stats.avgMae)}</div>
+                <div className="hint">진입 후 관찰 구간 최저</div>
               </div>
             </div>
-          </section>
 
-          <section>
-            <div className="sec-head">
-              <h2>과거 반등 사례</h2>
-              <span className="count">{episodes.length}</span>
-            </div>
-            <div className="tablebox" data-testid="episode-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>진입일</th>
-                    <th>진입가</th>
-                    <th>결과</th>
-                    <th>최대 회복</th>
-                    <th>MAE</th>
-                    <th>목표 도달</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {episodes.map((e) => (
-                    <tr key={e.entryIndex}>
-                      <td className="tk">{dates[e.entryIndex] ?? `#${e.entryIndex}`}</td>
-                      <td className="num">{e.entryClose.toFixed(2)}</td>
-                      <td>
-                        {e.success ? (
-                          <span className="badge ok">성공</span>
-                        ) : (
-                          <span className="badge err">실패</span>
-                        )}
-                      </td>
-                      <td className="num">{pct(e.reboundPct)}</td>
-                      <td className="num neg">{pct(e.mae)}</td>
-                      <td className="num">{e.daysToTarget === null ? '—' : `${e.daysToTarget}일`}</td>
-                    </tr>
+            <section>
+              <div className="sec-head">
+                <h2>가격 + 진입 마커 + 거래량</h2>
+                <nav className="range-nav" data-testid="range-nav" aria-label="기간">
+                  {(Object.keys(RANGES) as RangeKey[]).map((k) => (
+                    <Link
+                      key={k}
+                      href={`/t/${entry.ticker}?range=${k}${preset !== 'default' ? `&preset=${preset}` : ''}`}
+                      aria-current={k === range ? 'page' : undefined}
+                    >
+                      {RANGES[k].label}
+                    </Link>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </>
-      )}
+                </nav>
+                <span className="desc">
+                  ● 성공 / ● 실패 — 마커에 마우스를 올리면 상세 · 프리셋 {PRESETS[preset].label}
+                </span>
+              </div>
+              <PriceChart
+                closes={vCloses}
+                dates={vDates}
+                volumes={vVolumes}
+                markers={vEpisodes.map((e) => ({
+                  index: e.entryIndex,
+                  success: e.success,
+                  date: vDates[e.entryIndex] ?? '',
+                  reboundPct: e.reboundPct,
+                }))}
+              />
+            </section>
+
+            <section>
+              <div className="sec-head">
+                <h2>보조지표</h2>
+              </div>
+              <div className="cards">
+                <div className="card">
+                  <div className="label">MA50 이격</div>
+                  <div className="value">{pct(stats.maDist50)}</div>
+                </div>
+                <div className="card">
+                  <div className="label">MA200 이격</div>
+                  <div className="value">{pct(stats.maDist200)}</div>
+                </div>
+                <div className="card">
+                  <div className="label">
+                    볼린저 %B <Info k="pctb" />
+                  </div>
+                  <div className="value">{stats.pctB === null ? '—' : stats.pctB.toFixed(2)}</div>
+                </div>
+                <div className="card">
+                  <div className="label">
+                    거래량 급증 <Info k="volsurge" />
+                  </div>
+                  <div className="value">
+                    {stats.volSurge === null ? '—' : `${stats.volSurge.toFixed(2)}×`}
+                  </div>
+                  <div className="hint">최근 5일 / 직전 60일</div>
+                </div>
+                <div className="card">
+                  <div className="label">RSI(14)</div>
+                  <div className="value">{stats.rsi14 === null ? '—' : Math.round(stats.rsi14)}</div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <div className="sec-head">
+                <h2>과거 반등 사례</h2>
+                <span className="count">{episodes.length}</span>
+                <span className="desc">전체 2년 기준(차트 기간과 무관)</span>
+              </div>
+              <div className="tablebox" data-testid="episode-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>진입일</th>
+                      <th>진입가</th>
+                      <th>결과</th>
+                      <th>최대 회복</th>
+                      <th>
+                        MAE <Info k="mae" />
+                      </th>
+                      <th>목표 도달</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {episodes.map((e) => (
+                      <tr key={e.entryIndex}>
+                        <td className="tk">{dates[e.entryIndex] ?? `#${e.entryIndex}`}</td>
+                        <td className="num">{e.entryClose.toFixed(2)}</td>
+                        <td>
+                          {e.success ? (
+                            <span className="badge ok">성공</span>
+                          ) : (
+                            <span className="badge err">실패</span>
+                          )}
+                        </td>
+                        <td className="num">{pct(e.reboundPct)}</td>
+                        <td className="num neg">{pct(e.mae)}</td>
+                        <td className="num">
+                          {e.daysToTarget === null ? '—' : `${e.daysToTarget}일`}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </>
+        )}
+      </main>
 
       <footer>
         <p>

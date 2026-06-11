@@ -1,68 +1,58 @@
 'use client';
 
-// 탐색 표(R10) — 이 프로젝트 첫 클라이언트 컴포넌트(002 [ASSUMED 5]).
-// 데이터는 서버 직렬화 props, 관심목록은 localStorage("watchlist").
+// 탐색 표 (002 R10 → 003 R4 URL 동기화·R14 CSV)
+// URL 반영은 history.replaceState — Next 라우터를 타면 서버 재분석이 돌아 입력마다 무거워진다(003 [ASSUMED 2])
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Spark } from './Spark';
-
-export type ExplorerRow = {
-  ticker: string;
-  name: string;
-  category: string;
-  leveraged: boolean;
-  note: string;
-  lastClose: number | null;
-  drawdown: number | null;
-  rsi14: number | null;
-  episodes: number;
-  rebounds: number;
-  reboundRate: number | null;
-  wilsonLow: number | null;
-  avgReboundPct: number | null;
-  inDecline: boolean;
-  closes60: number[];
-  error: string | null;
-};
+import { useWatchlist } from './local';
+import { fmt, type ScreenRow } from './rows';
 
 type SortKey = 'ticker' | 'lastClose' | 'drawdown' | 'rsi14' | 'wilsonLow' | 'episodes';
+const SORT_KEYS: SortKey[] = ['ticker', 'lastClose', 'drawdown', 'rsi14', 'wilsonLow', 'episodes'];
 
-const pct = (v: number | null, d = 1) => (v === null ? '—' : `${(v * 100).toFixed(d)}%`);
-const rate = (v: number | null) => (v === null ? 'N/A' : `${Math.round(v * 100)}%`);
-const num = (v: number | null, d = 0) => (v === null ? '—' : v.toFixed(d));
+function readUrlState() {
+  const sp = new URLSearchParams(window.location.search);
+  const sort = sp.get('sort');
+  return {
+    q: sp.get('q') ?? '',
+    cat: sp.get('cat') ?? '전체',
+    sortKey: SORT_KEYS.includes(sort as SortKey) ? (sort as SortKey) : null,
+    desc: sp.get('dir') !== 'asc',
+  };
+}
 
-const WATCH_KEY = 'watchlist';
-
-export function ExplorerTable({ rows }: { rows: ExplorerRow[] }) {
+export function ExplorerTable({ rows }: { rows: ScreenRow[] }) {
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('전체');
   const [watchOnly, setWatchOnly] = useState(false);
-  const [watch, setWatch] = useState<Set<string>>(new Set());
+  const [watch, toggleWatch] = useWatchlist();
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [desc, setDesc] = useState(true);
 
+  // R4: 초기 상태를 URL에서 복원
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(WATCH_KEY);
-      if (raw) setWatch(new Set(JSON.parse(raw) as string[]));
-    } catch {
-      /* 손상된 저장값은 무시 */
-    }
+    const s = readUrlState();
+    setQ(s.q);
+    setCat(s.cat);
+    setSortKey(s.sortKey);
+    setDesc(s.desc);
   }, []);
 
-  const toggleWatch = (ticker: string) => {
-    setWatch((prev) => {
-      const next = new Set(prev);
-      if (next.has(ticker)) next.delete(ticker);
-      else next.add(ticker);
-      try {
-        localStorage.setItem(WATCH_KEY, JSON.stringify([...next]));
-      } catch {
-        /* 저장 불가 환경 무시 */
-      }
-      return next;
-    });
-  };
+  // R4: 상태 → URL (preset 같은 서버 파라미터는 보존)
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const setOrDel = (k: string, v: string, def: string) => {
+      if (v && v !== def) sp.set(k, v);
+      else sp.delete(k);
+    };
+    setOrDel('q', q, '');
+    setOrDel('cat', cat, '전체');
+    setOrDel('sort', sortKey ?? '', '');
+    setOrDel('dir', sortKey ? (desc ? 'desc' : 'asc') : '', '');
+    const qs = sp.toString();
+    window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+  }, [q, cat, sortKey, desc]);
 
   const cats = useMemo(() => ['전체', ...new Set(rows.map((r) => r.category))], [rows]);
 
@@ -72,9 +62,7 @@ export function ExplorerTable({ rows }: { rows: ExplorerRow[] }) {
       (r) =>
         (cat === '전체' || r.category === cat) &&
         (!watchOnly || watch.has(r.ticker)) &&
-        (qq === '' ||
-          r.ticker.toLowerCase().includes(qq) ||
-          r.name.toLowerCase().includes(qq)),
+        (qq === '' || r.ticker.toLowerCase().includes(qq) || r.name.toLowerCase().includes(qq)),
     );
     if (sortKey) {
       v = [...v].sort((a, b) => {
@@ -101,6 +89,27 @@ export function ExplorerTable({ rows }: { rows: ExplorerRow[] }) {
   };
 
   const arrow = (k: SortKey) => (sortKey === k ? (desc ? ' ↓' : ' ↑') : '');
+  const ariaSort = (k: SortKey) => (sortKey === k ? (desc ? 'descending' : 'ascending') : 'none');
+
+  // R14: 현재 뷰를 CSV로 — UTF-8 BOM(엑셀 한글 호환)
+  const exportCsv = () => {
+    const head = ['ticker', 'name', 'category', 'leveraged', 'close', 'drawdown', 'rsi14', 'episodes', 'rebounds', 'reboundRate', 'wilsonLow', 'inDecline', 'error'];
+    const cell = (v: unknown) => `"${String(v ?? '').replaceAll('"', '""')}"`;
+    const lines = [
+      head.join(','),
+      ...view.map((r) =>
+        [r.ticker, r.name, r.category, r.leveraged, r.lastClose, r.drawdown, r.rsi14, r.episodes, r.rebounds, r.reboundRate, r.wilsonLow, r.inDecline, r.error]
+          .map(cell)
+          .join(','),
+      ),
+    ];
+    const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `screener-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
 
   return (
     <div data-testid="explorer">
@@ -125,42 +134,45 @@ export function ExplorerTable({ rows }: { rows: ExplorerRow[] }) {
           />
           관심만
         </label>
+        <button className="tool" onClick={exportCsv} aria-label="CSV 내보내기">
+          ⤓ CSV
+        </button>
         <span className="hint">{view.length}종목</span>
       </div>
 
       <div className="tablebox">
-        <table>
+        <table className="responsive">
           <thead>
             <tr>
               <th aria-label="관심" />
-              <th>
+              <th aria-sort={ariaSort('ticker')}>
                 <button className="sortbtn" onClick={() => onSort('ticker')}>
                   티커{arrow('ticker')}
                 </button>
               </th>
               <th>이름</th>
               <th>60일</th>
-              <th>
+              <th aria-sort={ariaSort('lastClose')}>
                 <button className="sortbtn" onClick={() => onSort('lastClose')}>
                   종가{arrow('lastClose')}
                 </button>
               </th>
-              <th>
+              <th aria-sort={ariaSort('drawdown')}>
                 <button className="sortbtn" onClick={() => onSort('drawdown')}>
                   낙폭{arrow('drawdown')}
                 </button>
               </th>
-              <th>
+              <th aria-sort={ariaSort('rsi14')}>
                 <button className="sortbtn" onClick={() => onSort('rsi14')}>
                   RSI{arrow('rsi14')}
                 </button>
               </th>
-              <th>
+              <th aria-sort={ariaSort('episodes')}>
                 <button className="sortbtn" onClick={() => onSort('episodes')}>
                   사례{arrow('episodes')}
                 </button>
               </th>
-              <th>
+              <th aria-sort={ariaSort('wilsonLow')}>
                 <button className="sortbtn" onClick={() => onSort('wilsonLow')}>
                   성공률(하한){arrow('wilsonLow')}
                 </button>
@@ -170,7 +182,7 @@ export function ExplorerTable({ rows }: { rows: ExplorerRow[] }) {
           <tbody>
             {view.map((r) => (
               <tr key={r.ticker} className={r.error ? 'failed' : undefined}>
-                <td>
+                <td data-label="관심">
                   <button
                     className="star"
                     aria-pressed={watch.has(r.ticker)}
@@ -180,32 +192,38 @@ export function ExplorerTable({ rows }: { rows: ExplorerRow[] }) {
                     {watch.has(r.ticker) ? '★' : '☆'}
                   </button>
                 </td>
-                <td className="tk">
+                <td className="tk" data-label="티커">
                   <Link href={`/t/${r.ticker}`}>{r.ticker}</Link>
                   {r.leveraged && <span className="badge lev">{r.note || '레버리지'}</span>}
                   {r.inDecline && <span className="badge dn">하락 중</span>}
                 </td>
-                <td className="nm">{r.name}</td>
+                <td className="nm" data-label="이름">
+                  {r.name}
+                </td>
                 {r.error ? (
-                  <td colSpan={6}>
+                  <td colSpan={6} data-label="상태">
                     <span className="badge err">조회 실패</span> {r.error}
                   </td>
                 ) : (
                   <>
-                    <td>
+                    <td data-label="60일">
                       <Spark closes={r.closes60} />
                     </td>
-                    <td className="num">{num(r.lastClose, 2)}</td>
-                    <td className="num">
-                      <span className={r.inDecline ? 'neg' : undefined}>{pct(r.drawdown)}</span>
+                    <td className="num" data-label="종가">
+                      {fmt.num(r.lastClose, 2)}
                     </td>
-                    <td className="num">{num(r.rsi14)}</td>
-                    <td className="num">
+                    <td className="num" data-label="낙폭">
+                      <span className={r.inDecline ? 'neg' : undefined}>{fmt.pct(r.drawdown)}</span>
+                    </td>
+                    <td className="num" data-label="RSI">
+                      {fmt.num(r.rsi14)}
+                    </td>
+                    <td className="num" data-label="사례">
                       {r.rebounds}/{r.episodes}
                     </td>
-                    <td className="num">
-                      <strong>{rate(r.reboundRate)}</strong>
-                      <span className="sub"> 하한 {rate(r.wilsonLow)}</span>
+                    <td className="num" data-label="성공률">
+                      <strong>{fmt.rate(r.reboundRate)}</strong>
+                      <span className="sub"> 하한 {fmt.rate(r.wilsonLow)}</span>
                     </td>
                   </>
                 )}

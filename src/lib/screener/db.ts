@@ -143,6 +143,23 @@ export function createStore(dbPath: string) {
     saveSnapshot(date: string, rows: SnapshotRow[]): void {
       snapMany(date, rows);
     },
+    // 현재 연속 하락 구간의 시작 snap_date (003 R5 — "방문 후 진입" 판정 근거)
+    declineStartDates(): Record<string, string> {
+      const rows = db
+        .prepare('SELECT snap_date, ticker, in_decline FROM snapshots ORDER BY snap_date ASC')
+        .all() as Array<{ snap_date: string; ticker: string; in_decline: number }>;
+      const last = new Map<string, number>();
+      const start = new Map<string, string>();
+      for (const r of rows) {
+        if (r.in_decline === 1 && last.get(r.ticker) !== 1) start.set(r.ticker, r.snap_date);
+        last.set(r.ticker, r.in_decline);
+      }
+      const out: Record<string, string> = {};
+      for (const [ticker, s] of start) {
+        if (last.get(ticker) === 1) out[ticker] = s;
+      }
+      return out;
+    },
     prevSnapshot(date: string): { snapDate: string; inDecline: Map<string, boolean> } | null {
       const prev = (selectPrevDate.get(date) as { d: string | null }).d;
       if (!prev) return null;

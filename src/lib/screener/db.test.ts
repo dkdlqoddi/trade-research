@@ -102,6 +102,35 @@ describe('스냅샷 (R4·R5)', () => {
   });
 });
 
+describe('declineStartDates (003 R5 — 현재 하락 구간 시작일)', () => {
+  it('연속 하락의 시작 snap_date를 티커별로 준다', () => {
+    store = createStore(':memory:');
+    const d = (date: string, rows: Array<[string, 0 | 1]>) =>
+      store.saveSnapshot(
+        date,
+        rows.map(([ticker, v]) => ({ ticker, in_decline: v, drawdown: null, rebound_rate: null })),
+      );
+    d('2026-06-07', [['A', 0], ['B', 1], ['C', 1]]);
+    d('2026-06-08', [['A', 1], ['B', 0], ['C', 1]]);
+    d('2026-06-09', [['A', 1], ['B', 1], ['C', 1]]);
+    const m = store.declineStartDates();
+    expect(m['A']).toBe('2026-06-08'); // 0→1 돌입일
+    expect(m['B']).toBe('2026-06-09'); // 끊겼다 재진입
+    expect(m['C']).toBe('2026-06-07'); // 처음부터 연속
+  });
+
+  it('마지막 기록이 하락 아님이면 제외', () => {
+    store = createStore(':memory:');
+    store.saveSnapshot('2026-06-08', [
+      { ticker: 'D', in_decline: 1, drawdown: null, rebound_rate: null },
+    ]);
+    store.saveSnapshot('2026-06-09', [
+      { ticker: 'D', in_decline: 0, drawdown: null, rebound_rate: null },
+    ]);
+    expect(store.declineStartDates()['D']).toBeUndefined();
+  });
+});
+
 describe('오류 이력 (R13)', () => {
   it('오류만 최신순으로 준다', () => {
     store = createStore(':memory:');

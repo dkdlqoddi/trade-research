@@ -240,6 +240,125 @@ svg.chart {
 }
 svg.chart .axis { fill: var(--muted); font-family: var(--font-m); font-size: 10px; }
 
+/* ── 003 UX ── */
+
+/* 건너뛰기 링크 (R13) */
+.skip-link {
+  position: absolute; left: -999px; top: 0; z-index: 10;
+  background: var(--accent); color: var(--bg); padding: .4rem .9rem; border-radius: 0 0 6px 0;
+  font-weight: 700;
+}
+.skip-link:focus { left: 0; }
+
+/* 스켈레톤 (R1) */
+.skel {
+  border-radius: 8px;
+  background: linear-gradient(100deg, var(--bg-raise) 40%, var(--bg-card) 50%, var(--bg-raise) 60%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+.skel.title { height: 2.2rem; width: 40%; margin: .5rem 0 1rem; }
+.skel.line { height: 1rem; width: 70%; margin: .8rem 0; }
+.skel.card-block { height: 5.4rem; }
+.skel.table-block { height: 22rem; margin-top: 1rem; }
+.skel.chart-block { height: 18rem; margin-top: 1rem; }
+.skel-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .8rem; margin: 1.2rem 0; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
+
+/* 라이트 테마 (R15) */
+[data-theme='light'] {
+  --bg: #f6f7f9;
+  --bg-raise: #ffffff;
+  --bg-card: #ffffff;
+  --line: #d7dce4;
+  --line-soft: #e7ebf0;
+  --text: #1b2330;
+  --muted: #5a6678;
+  --up: #117a4e;
+  --down: #c03434;
+  --amber: #9a6700;
+  --accent: #1d6fc2;
+  color-scheme: light;
+}
+[data-theme='light'] body {
+  background:
+    radial-gradient(1200px 500px at 70% -10%, rgba(29, 111, 194, 0.06), transparent 60%),
+    var(--bg);
+}
+
+/* 표 밀도 (R15) */
+[data-density='compact'] tbody td { padding: .26rem .55rem; font-size: .8rem; }
+[data-density='compact'] .card { padding: .55rem .8rem .5rem; }
+
+/* 헤더 도구 */
+.header-controls { display: inline-flex; gap: .4rem; }
+.header-controls button, .tool {
+  background: var(--bg-raise); color: var(--muted);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: .26rem .65rem; font-size: .78rem; cursor: pointer; font-family: var(--font-m);
+}
+.header-controls button:hover, .tool:hover { color: var(--text); border-color: var(--accent); }
+.header-controls button:disabled { opacity: .6; cursor: wait; }
+
+/* 용어 도움 링크 (R3) */
+a.info {
+  margin-left: .3rem; font-size: .72rem; color: var(--muted);
+  text-decoration: none; border-bottom: 1px dotted var(--muted);
+}
+a.info:hover { color: var(--accent); }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* 관심 구간 (R6) */
+.watch-section .tablebox { border-color: #3a5e8c; }
+.watch-section h2::after { content: ' ★'; color: var(--amber); }
+.badge.visit { color: var(--accent); }
+
+/* 이웃·기간·비교 (R8·R9·R10) */
+.neighbor-nav, .range-nav {
+  display: flex; align-items: center; gap: .7rem; font-size: .84rem; font-family: var(--font-m);
+}
+.neighbor-nav { margin-top: .8rem; }
+.range-nav a, .tool-link {
+  border: 1px solid var(--line); border-radius: 6px; padding: .12rem .55rem; color: var(--muted);
+}
+.range-nav a[aria-current='page'] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.tool-link:hover, .range-nav a:hover { color: var(--text); text-decoration: none; }
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1rem; }
+@media (max-width: 880px) { .compare-grid { grid-template-columns: 1fr; } }
+.compare-side { border: 1px solid var(--line); border-radius: 10px; padding: 1rem; background: var(--bg-raise); }
+.compare-side h2 { margin: 0 0 .6rem; font-size: 1.1rem; }
+.compare-form { display: flex; gap: .5rem; align-items: center; margin-top: 1rem; }
+.compare-form input {
+  background: var(--bg-raise); color: var(--text); border: 1px solid var(--line);
+  border-radius: 6px; padding: .4rem .7rem; font-family: var(--font-m); text-transform: uppercase;
+  width: 11rem;
+}
+.kv { list-style: none; padding: 0; margin: 0 0 .8rem; display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; font-size: .85rem; color: var(--muted); }
+.kv b { color: var(--text); font-family: var(--font-m); }
+
+/* 차트 거래량·날짜 축 (R8) */
+svg.chart rect.vol { fill: var(--muted); opacity: .35; }
+svg.chart text.xaxis { fill: var(--muted); font-family: var(--font-m); font-size: 10px; }
+
+/* 모바일 카드형 (R2) — 719px 이하에서 .responsive 표를 행 카드로 */
+@media (max-width: 719px) {
+  .responsive thead { display: none; }
+  .responsive, .responsive tbody, .responsive tr, .responsive td { display: block; width: 100%; }
+  .responsive tr { border-bottom: 2px solid var(--line); padding: .45rem 0; }
+  .responsive td { border-bottom: none; padding: .14rem .6rem; white-space: normal; text-align: left; }
+  .responsive td.num { text-align: left; }
+  .responsive td[data-label]::before {
+    content: attr(data-label);
+    display: inline-block; min-width: 6.2rem;
+    color: var(--muted); font-size: .74rem;
+  }
+  .tablebox { max-height: none; }
+}
+
 /* 방법론 (R12) */
 .prose section { margin-bottom: 1.6rem; }
 .prose h2 { font-size: 1.05rem; border-left: 3px solid var(--accent); padding-left: .55rem; }

@@ -151,6 +151,7 @@ export type TickerDetail = {
   entry: UniverseEntry;
   dates: string[];
   closes: number[];
+  volumes: number[];
   episodes: Episode[];
   stats: TickerStats;
 };
@@ -164,9 +165,9 @@ export async function analyzeTicker(
   if (!entry) return null;
   const p = PRESETS[preset].params;
   const stats = await analyzeOne(entry, p);
-  if (stats.error) return { entry, dates: [], closes: [], episodes: [], stats };
-  const { dates, closes } = getStore().getSeries(ticker);
-  return { entry, dates, closes, episodes: extractEpisodes(closes, p), stats };
+  if (stats.error) return { entry, dates: [], closes: [], volumes: [], episodes: [], stats };
+  const { dates, closes, volumes } = getStore().getSeries(ticker);
+  return { entry, dates, closes, volumes, episodes: extractEpisodes(closes, p), stats };
 }
 
 // 하락 구간 정렬: 윌슨 하한 desc(002 R2 — 소표본 과대 노출 방지) → 표본수 desc → 티커
