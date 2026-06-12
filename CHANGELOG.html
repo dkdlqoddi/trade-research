@@ -37,13 +37,27 @@
 </head>
 <body>
 <h1>trade-research — CHANGELOG</h1>
-<p class="meta">main 커밋 14건 · 최종 갱신 2026-06-12 · 기준 계보 main</p>
+<p class="meta">main 커밋 15건 · 최종 갱신 2026-06-12 · 기준 계보 main</p>
 <ul class="log">
     <li class="entry">
       <span class="date">2026-06-12</span>
       <span class="badge chore">chore</span>
-      <span class="subject">chore: 퍼블릭 리포 운용 정렬 — [SEC] 접수 재설계(ADR 0003)·changelog 권한 1줄</span>
+      <span class="subject">chore: MIT LICENSE 추가</span>
       <code class="hash pending">pending</code>
+    </li>
+    <li class="entry">
+      <span class="date">2026-06-12</span>
+      <span class="badge chore">chore</span>
+      <span class="subject">chore: 퍼블릭 리포 운용 정렬 — [SEC] 접수 재설계(ADR 0003)·changelog 권한 1줄</span>
+      <code class="hash">48a4168</code>
+      <details><summary>상세</summary><pre>리뷰에서 리포가 public임이 확인됨(R9 레퍼런스는 프라이빗 프로파일).
+운영자 결정 = public 유지 → 편차를 ADR 0003으로 기록하고 [SEC]만 재설계:
+- security.yml 이슈 폼 삭제 → private vulnerability reporting 단일 경로
+  (config.yml contact_link + .github/SECURITY.md 신설)
+- constitution §3·§12, CLAUDE.md 의도의 입구·[ASSUMED] 14·16 정렬
+  (외부인 작성자 가능 — 주입 방어 강화 방향)
+- settings.json allow에 changelog.sh 1줄(운영자 직접 추가 승인 — AMEND)
+- [ASSUMED] 14 갱신: 브랜치 보호 솔로 단계 적용 확인(required checks 3종)</pre></details>
     </li>
     <li class="entry">
       <span class="date">2026-06-11</span>
