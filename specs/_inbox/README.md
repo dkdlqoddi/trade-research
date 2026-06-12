@@ -1,7 +1,7 @@
 # specs/_inbox/ — 기계 피드백 수집함
 
 **기계 산출 전용**(constitution §12): ops-review 결과·flaky 기록만 여기에 쌓인다.
-사람의 기능·버그·개선 의도는 **GitHub Issue**(Issue Forms — `[FEAT]`/`[BUG]`/`[CHORE]`/`[SPIKE]`)로 등록한다. 솔로·스파이크 예외만 터미널 `/spec <설명>` 직행(`issue: null`).
+사람의 기능·버그·개선 의도는 **GitHub Issue**(Issue Forms — `[FEAT]`/`[BUG]`/`[CHORE]`/`[REFACTOR]`/`[SPIKE]`)로 등록한다. 솔로·스파이크 예외만 터미널 `/spec <설명>` 직행(`issue: null`). `[SEC]` 취약점은 이슈 금지 — private vulnerability reporting 접수 후 터미널 `/spec` 직행(ADR 0003).
 
 ## 파일 규격
 

@@ -24,7 +24,7 @@ FAIL이면 출력된 위반 목록을 **그대로 반려 코멘트**로: `gh iss
 
 ## ② 착수 위생 — 중복 검사 + 소프트 점유
 
-- 같은 이슈의 기존 스펙: `grep -rl "^issue: N$" specs/*/spec.md` / 열린 PR: `gh pr list --search "Closes #N"`
+- 같은 이슈의 기존 스펙: `grep -rlE "^issue: *N\b" specs/*/spec.md` / 열린 PR: `gh pr list --search "Closes #N"` (001~003은 `issue:` 필드 부재 — CLAUDE.md [ASSUMED] 13 — grep에 안 잡히므로 PR 검색이 보완)
 - 있으면 **중단**, 기존 링크 안내. 없으면 이슈에 "스펙 착수(@내핸들)" 코멘트(ask — 소프트 점유).
 - **대형 [FEAT](epic) 판단 시**: 스펙을 만들지 말고 **분할안을 부모 이슈 코멘트로 제안**(ask) 후 중단 — 자식 이슈 등록은 사람, PR : 이슈 = 1 : 1. 부모 본문 tasklist(`- [ ] #자식`)가 진행판.
 

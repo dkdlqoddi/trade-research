@@ -1,4 +1,4 @@
-blank_issues_enabled: false # 형식 밖 자유 등록 차단 — 접수는 폼 5종([FEAT]/[BUG]/[CHORE]·[REFACTOR]/[SPIKE])으로만
+blank_issues_enabled: false # 형식 밖 자유 등록 차단 — 접수는 폼 4종([FEAT]/[BUG]/[CHORE]·[REFACTOR]/[SPIKE])으로만
 contact_links:
   - name: 보안 취약점 신고 (비공개)
     url: https://github.com/dkdlqoddi/trade-research/security/advisories/new

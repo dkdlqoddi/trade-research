@@ -7,6 +7,10 @@ argument-hint: <#이슈번호>
 
 N = 이슈 번호. **읽기 + 코멘트만** — 이슈를 만들거나 고치거나 닫지 않는다(사람 전용, 권한 deny).
 
+## ⓪ [SEC] 단락 (퍼블릭 리포 — ADR 0003)
+
+본문이 보안 취약점 신고로 보이면 **즉시 중단**: 형식 반려·OK 코멘트 게시 금지(취약점 상세를 공개 스레드에 재생산하지 않는다). 비공개 경로 안내 코멘트 1회(`.github/SECURITY.md`의 private vulnerability reporting 링크, ask) + **사람에게 보고**(CLAUDE.md INTAKE).
+
 ## ① 형식 검사
 
 ```bash
