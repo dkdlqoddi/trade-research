@@ -37,13 +37,27 @@
 </head>
 <body>
 <h1>trade-research — CHANGELOG</h1>
-<p class="meta">main 커밋 13건 · 최종 갱신 2026-06-11 · 기준 계보 main</p>
+<p class="meta">main 커밋 14건 · 최종 갱신 2026-06-12 · 기준 계보 main</p>
 <ul class="log">
+    <li class="entry">
+      <span class="date">2026-06-12</span>
+      <span class="badge chore">chore</span>
+      <span class="subject">chore: 퍼블릭 리포 운용 정렬 — [SEC] 접수 재설계(ADR 0003)·changelog 권한 1줄</span>
+      <code class="hash pending">pending</code>
+    </li>
     <li class="entry">
       <span class="date">2026-06-11</span>
       <span class="badge chore">chore</span>
       <span class="subject">chore: R9 재조정 마감 — issue-lint allow 등록·REFERENCE_REV 스탬프</span>
-      <code class="hash pending">pending</code>
+      <code class="hash">5f6d3a6</code>
+      <details><summary>상세</summary><pre>운영자가 permissions 적용을 Claude Code 직접 수행으로 지시(터미널) — 재조정 모드
+ⓒ(사람 적용 목록) 항목을 운영자 위임으로 반영하고 ⓓ(REV 스탬프)를 같은 흐름에서 수행.
+- settings.json allow에 "Bash(bash .claude/hooks/issue-lint.sh*)" 추가 —
+  /spec #N·/triage가 자율 구간에서 프롬프트 없이 접수 검사를 실행한다.
+- .claude/REFERENCE_REV = R9 최초 생성 — session-start 드리프트 경고 소거 확인.
+  이후 참조 문서 개정 시 이 파일과 헤더 토큰 불일치가 재조정 신호가 된다.
+검증: settings JSON 파싱 OK · session-start 스모크에서 재조정 경고 미출력.
+settings 변경은 새 세션부터 적용 — 재시작 후 /hooks 재승인 필요.</pre></details>
     </li>
     <li class="entry">
       <span class="date">2026-06-11</span>

@@ -1,1 +1,5 @@
-blank_issues_enabled: false # 형식 밖 자유 등록 차단 — 접수는 폼 6종([FEAT]/[BUG]/[CHORE]·[REFACTOR]/[SPIKE]/[SEC])으로만
+blank_issues_enabled: false # 형식 밖 자유 등록 차단 — 접수는 폼 5종([FEAT]/[BUG]/[CHORE]·[REFACTOR]/[SPIKE])으로만
+contact_links:
+  - name: 보안 취약점 신고 (비공개)
+    url: https://github.com/dkdlqoddi/trade-research/security/advisories/new
+    about: 퍼블릭 리포라 이슈는 전체 공개 — 취약점은 private vulnerability reporting으로만. 실자격증명·시크릿·PoC 금지 (.github/SECURITY.md).
